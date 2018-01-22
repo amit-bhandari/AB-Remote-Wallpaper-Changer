@@ -1,0 +1,72 @@
+<resources>
+    <string name="app_name">AB Wallpaper</string>
+
+    <!-- Main activity -->
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="action_settings">Settings</string>
+
+    <!-- sign up login screen -->
+    <string name="email_id_hint">Email Id</string>
+    <string name="password_hint">Password</string>
+    <string name="login_button_text">Login</string>
+    <string name="forgot_password_text">Forgot Password</string>
+    <string name="sign_up_button_text">Sign Up</string>
+    <string name="username_text">Username</string>
+    <string name="password_reset_title">Password Reset</string>
+    <string name="password_reset_content">Enter your email address and you will receive password reset link.</string>
+    <string name="invalid_email_id_error">Enter proper email address</string>
+    <string name="password_reset_email_sent">Email is sent to your mailbox.</string>
+    <string name="empty_password_error">Enter password</string>
+    <string name="login_failed_error">Authentication failed.</string>
+    <string name="invalid_user_error">Invalid User</string>
+    <string name="invalid_password_error">Invalid password</string>
+    <string name="unknown_login_error">Error logging in, try again later.</string>
+    <string name="empty_username_error">Enter username</string>
+    <string name="account_exists_error">Account already exists</string>
+    <string name="weak_password_error">Weak password, enter at lease 6 characters</string>
+    <string name="weak_email_error">Weak email, enter proper email</string>
+    <string name="unknown_sign_up_error">Error creating user, try again later.</string>
+    <string name="username_clash_error">Username Already Exists.</string>
+    <string name="google_sign_up_button">Sign Up using Google</string>
+    <string name="network_error">Network Error, try again later!</string>
+    <string name="unknown_error">Unknown Error, try again later!</string>
+
+    <!-- main activity -->
+    <string name="error_self_username">Can\'t enter your own User id</string>
+    <string name="friend_request_sent_toast">Request Sent</string>
+    <string name="add_friend_title">Add friend</string>
+    <string name="add_friend_pos">Add</string>
+    <string name="add_friend_content">Enter User Name of person you want to add as friend.</string>
+    <string name="error_zero_friends">No Friends!</string>
+    <string name="friend_list_fetch_unknown_error">Error fetching Friend List, try again later.</string>
+    <string name="error_no_friend_requests">No Friend Requests!</string>
+    <string name="requests_fetch_unknown_error">Error fetching Friend Requests, try again later.</string>
+    <string name="friend_already_added_error">User is already friend</string>
+    <string name="photo_upload_title">Please wait</string>
+    <string name="photo_upload_content">Uploading </string>
+
+    <!-- Menu items -->
+    <string name="title_sign_out">Sign Out</string>
+    <string name="title_change_wallpaper">Change Wallpaper</string>
+
+    <!-- preferences -->
+
+    <string name="notification_token">notification_token</string>
+    <string name="pref_username">pref_username</string>
+    <string name="google_signin_error">Error signing in with Google.</string>
+    <string name="hint_display_name">Name</string>
+    <string name="empty_display_name_error">Enter Name</string>
+    <string name="no_network_error">No network</string>
+    <string name="block_user">Block</string>
+    <string name="title_block_list">Block List</string>
+    <string name="title_unblock">Unblock</string>
+    <string name="title_accept">Accept</string>
+    <string name="title_reject">Reject</string>
+    <string name="title_block">Block</string>
+    <string name="title_remove_friend">Remove Friend</string>
+    <string name="error_no_requests">No New Requests!</string>
+    <string name="error_no_blocked_friends">No Blocked Friends!</string>
+    <string name="cancel">Cancel</string>
+
+</resources>
