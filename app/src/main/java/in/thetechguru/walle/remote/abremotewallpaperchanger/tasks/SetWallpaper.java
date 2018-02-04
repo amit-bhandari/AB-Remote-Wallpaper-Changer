@@ -3,6 +3,7 @@ package in.thetechguru.walle.remote.abremotewallpaperchanger.tasks;
 import android.app.WallpaperManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -30,20 +31,30 @@ import in.thetechguru.walle.remote.abremotewallpaperchanger.model.HttpsRequestPa
 
 public class SetWallpaper extends Thread {
 
-    public SetWallpaper(String identifier, String fromUser){
-        super(getRunnable(identifier, fromUser));
+    public SetWallpaper(String wallpaper_url, String fromUser){
+        super(getRunnable(wallpaper_url, fromUser));
     }
 
-    private static Runnable getRunnable(final String identifier, final String fromUser){
+    private static Runnable getRunnable(final String wallpaper_url, final String fromUser){
         return new Runnable() {
             @Override
             public void run() {
 
-                final StorageReference uploadedFile = FirebaseUtil.getStorage().child(identifier);
-                File localFile = null;
+                final StorageReference uploadedFile = FirebaseUtil.getStorage().child(wallpaper_url);
+                File localFile;
                 try {
-                    localFile = File.createTempFile("photo", "jpg");
-                } catch (IOException e) {
+
+                    String directory_path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/AB_Wall/";
+                    String file_name = fromUser + "_" + wallpaper_url + ".jpg";
+                    //create directory if not present
+                    File file = new File(directory_path);
+                    if(!file.exists() && !file.mkdir()){
+                        localFile = File.createTempFile("photo", "jpg");
+                    }else {
+                        localFile = new File(directory_path + file_name);
+                    }
+                    Log.d("SetWallpaper", "save path: " + localFile.getAbsolutePath());
+                } catch (Exception e) {
                     e.printStackTrace();
                     return;
                 }

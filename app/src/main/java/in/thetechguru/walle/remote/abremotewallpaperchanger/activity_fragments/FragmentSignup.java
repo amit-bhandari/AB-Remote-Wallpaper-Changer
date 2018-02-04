@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.text.InputFilter;
+import android.text.Spanned;
 import android.util.Log;
 import android.util.Patterns;
 import android.view.LayoutInflater;
@@ -86,6 +88,18 @@ public class FragmentSignup  extends Fragment implements  GoogleApiClient.OnConn
         // Inflate the layout for this fragment
         View layout = inflater.inflate(R.layout.fragment_signup, container, false);
         ButterKnife.bind(this, layout);
+        
+        //force small cap to username field
+        InputFilter[] editFilters = username_input.getFilters();
+        InputFilter[] newFilters = new InputFilter[editFilters.length + 1];
+        System.arraycopy(editFilters, 0, newFilters, 0, editFilters.length);
+        newFilters[editFilters.length] = new InputFilter.AllCaps() {
+            @Override
+            public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
+                return String.valueOf(source).toLowerCase();
+            }
+        };
+        username_input.setFilters(newFilters);
         return layout;
     }
 
@@ -117,6 +131,11 @@ public class FragmentSignup  extends Fragment implements  GoogleApiClient.OnConn
 
         if(password.isEmpty()){
             password_input.setError(getString(R.string.empty_password_error));
+            return;
+        }
+
+        if(password.length() < 6){
+            password_input.setError(getString(R.string.weak_password_error));
             return;
         }
 
@@ -293,12 +312,20 @@ public class FragmentSignup  extends Fragment implements  GoogleApiClient.OnConn
             String userName = email.substring(0, email.indexOf('@')).replace(".","_");
             if(!userName.equals("")){
                 username_input.setText(userName);
+
+                //
             }
 
             if(acct.getPhotoUrl()!=null) {
                 personPhotoUrl = acct.getPhotoUrl().toString();
             }
+
             google_sign_up_button.setEnabled(false);
+
+            //log out from google, as we only wanted email id and username
+            if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
+                Auth.GoogleSignInApi.signOut(mGoogleApiClient);
+            }
         } else {
             // some Error or user logged out, either case, update the drawer and give user appropriate info
                 if (result.getStatus().getStatusCode() == CommonStatusCodes.NETWORK_ERROR) {

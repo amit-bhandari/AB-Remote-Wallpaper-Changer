@@ -1,0 +1,107 @@
+{
+  "project_info": {
+    "project_number": "1081857249823",
+    "firebase_url": "https://walle-73480.firebaseio.com",
+    "project_id": "walle-73480",
+    "storage_bucket": "walle-73480.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1081857249823:android:d862e70e00112d3c",
+        "android_client_info": {
+          "package_name": "in.thetechguru.remote.remotewallchange"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1081857249823-t25qkc4hp0ujf7qhbqe0sjl9e0gmp98b.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "in.thetechguru.remote.remotewallchange",
+            "certificate_hash": "fd651b484e7d065ed42809ae58e9dc854a214d0b"
+          }
+        },
+        {
+          "client_id": "1081857249823-a1pkiib4p7i3g1jr02irm8asgtggsavc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBRHoi2RANO3Biu7RsSsdkHE3ZtVr-75lc"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1081857249823-a1pkiib4p7i3g1jr02irm8asgtggsavc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1081857249823:android:7982aee320acbdee",
+        "android_client_info": {
+          "package_name": "in.thetechguru.walle.remote.abremotewallpaperchanger"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1081857249823-3okn8119u2rpr1m4c2e3ttnvl0l462m2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "in.thetechguru.walle.remote.abremotewallpaperchanger",
+            "certificate_hash": "836ef2fd9d0a96e5853886f80308bbf0716400f5"
+          }
+        },
+        {
+          "client_id": "1081857249823-8pof0u3a6e0g1g5cm6jq2u6njn7vh2ou.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "in.thetechguru.walle.remote.abremotewallpaperchanger",
+            "certificate_hash": "fd651b484e7d065ed42809ae58e9dc854a214d0b"
+          }
+        },
+        {
+          "client_id": "1081857249823-a1pkiib4p7i3g1jr02irm8asgtggsavc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBRHoi2RANO3Biu7RsSsdkHE3ZtVr-75lc"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1081857249823-a1pkiib4p7i3g1jr02irm8asgtggsavc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

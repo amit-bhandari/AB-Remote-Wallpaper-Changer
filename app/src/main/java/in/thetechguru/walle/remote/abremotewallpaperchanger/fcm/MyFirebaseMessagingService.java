@@ -33,9 +33,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
             String status = remoteMessage.getData().get("notif_status");
             String fromUser = remoteMessage.getData().get("fromUser");
-            String id = remoteMessage.getData().get("id");
+            String wallpaper_url = remoteMessage.getData().get("id");
 
-            Log.d("MyFirebaseMessaging", "onMessageReceived: " + fromUser + " : " +status + " : " + id);
+            Log.d("MyFirebaseMessaging", "onMessageReceived: " + fromUser + " : " +status + " : " + wallpaper_url);
 
             switch (status){
                 case HttpsRequestPayload.STATUS_CODE.FRIEND_REQUEST:
@@ -47,7 +47,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     break;
 
                 case HttpsRequestPayload.STATUS_CODE.CHANGE_WALLPAPER:
-                    new SetWallpaper(id, fromUser).start();
+                    new SetWallpaper(wallpaper_url, fromUser).start();
                     break;
 
                 case HttpsRequestPayload.STATUS_CODE.WALLPAPER_CHANGED:

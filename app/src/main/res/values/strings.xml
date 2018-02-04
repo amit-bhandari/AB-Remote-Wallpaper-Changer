@@ -24,7 +24,7 @@
     <string name="unknown_login_error">Error logging in, try again later.</string>
     <string name="empty_username_error">Enter username</string>
     <string name="account_exists_error">Account already exists</string>
-    <string name="weak_password_error">Weak password, enter at lease 6 characters</string>
+    <string name="weak_password_error">Weak password, enter at least 6 characters</string>
     <string name="weak_email_error">Weak email, enter proper email</string>
     <string name="unknown_sign_up_error">Error creating user, try again later.</string>
     <string name="username_clash_error">Username Already Exists.</string>
@@ -68,5 +68,8 @@
     <string name="error_no_requests">No New Requests!</string>
     <string name="error_no_blocked_friends">No Blocked Friends!</string>
     <string name="cancel">Cancel</string>
+    <string name="permission_grant_title">Permission Needed</string>
+    <string name="permission_grant_content">To store wallpapers in SD Card, please grant storage access permission</string>
+    <string name="permission_grant_pos">Grant</string>
 
 </resources>

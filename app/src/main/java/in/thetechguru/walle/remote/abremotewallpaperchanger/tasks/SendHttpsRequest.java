@@ -39,7 +39,7 @@ public class SendHttpsRequest extends Thread {
 
                     RequestQueue queue = Volley.newRequestQueue(MyApp.getContext());
 
-                    Response.Listener<String> listener = new Response.Listener<String>() {
+                    Response.Listener<String> listener =  new Response.Listener<String>() {
                         @Override
                         public void onResponse(String response) {
                             Log.d("volley", "onResponse: "+ response);
