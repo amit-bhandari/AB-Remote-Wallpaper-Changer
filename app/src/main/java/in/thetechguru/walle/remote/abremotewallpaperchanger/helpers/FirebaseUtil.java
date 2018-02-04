@@ -99,7 +99,7 @@ public class FirebaseUtil {
         return getDatabase().getReference().child("users").child(uId).child("name");
     }
 
-    //get particular photo url reference from firebase user id
+    //get particular photo path reference from firebase user id
     public static DatabaseReference getPhotoUrlRef(String uId){
         return getDatabase().getReference().child("users").child(uId).child("photourl");
     }

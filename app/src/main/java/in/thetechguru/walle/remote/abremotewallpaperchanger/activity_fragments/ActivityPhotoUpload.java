@@ -24,6 +24,8 @@ import java.util.UUID;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.MyApp;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.R;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.helpers.FirebaseUtil;
+import in.thetechguru.walle.remote.abremotewallpaperchanger.history.HistoryItem;
+import in.thetechguru.walle.remote.abremotewallpaperchanger.history.HistoryRepo;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.model.HttpsRequestPayload;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.tasks.SendHttpsRequest;
 
@@ -126,6 +128,10 @@ public class ActivityPhotoUpload extends Activity {
                     Log.d("InvisiblePhotoUpload", "onSuccess: " + downloadUrl.toString());
                 }
                 Toast.makeText(ActivityPhotoUpload.this, "Uploaded successfully", Toast.LENGTH_SHORT).show();
+
+                //add history item in
+                HistoryItem item = new HistoryItem("self", toUserName,System.currentTimeMillis(), mFileUri.toString());
+                HistoryRepo.getInstance().putHistoryItem(item);
 
                 //notify firebase function for sending fcm to userName
                 HttpsRequestPayload payload = new HttpsRequestPayload(toUserName

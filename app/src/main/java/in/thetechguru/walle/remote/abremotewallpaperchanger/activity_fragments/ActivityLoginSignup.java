@@ -55,7 +55,7 @@ public class ActivityLoginSignup extends AppCompatActivity {
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
         Glide.with(this)
-                .load("http://cdn.wonderfulengineering.com/wp-content/uploads/2016/01/black-wallpaper-3.jpg")
+                .load("https://i2.wp.com/theprehabguys.com/wp-content/uploads/2016/12/black-background.jpg?ssl=1")
                 .centerCrop()
                 .into((ImageView)findViewById(R.id.full_background));
 

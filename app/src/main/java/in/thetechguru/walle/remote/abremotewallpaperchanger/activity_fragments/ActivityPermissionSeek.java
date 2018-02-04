@@ -10,11 +10,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.widget.Toast;
-
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.squareup.haha.perflib.Main;
 
 import in.thetechguru.walle.remote.abremotewallpaperchanger.R;
 
@@ -37,6 +34,7 @@ public class ActivityPermissionSeek extends AppCompatActivity {
             }
         }else {
             startActivity(new Intent(this, ActivityMain.class));
+            finish();
         }
     }
 
@@ -93,7 +91,8 @@ public class ActivityPermissionSeek extends AppCompatActivity {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                        startActivity(new Intent(this, ActivityMain.class));
+                    finish();
+                    startActivity(new Intent(this, ActivityMain.class));
                     }
                 }
                 break;

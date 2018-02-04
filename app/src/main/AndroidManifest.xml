@@ -35,6 +35,10 @@
             android:windowSoftInputMode="adjustResize"
             android:theme="@style/AppTheme.NoActionBar"/>
 
+        <activity android:name=".activity_fragments.ActivityHistory"
+            android:windowSoftInputMode="adjustResize"
+            android:theme="@style/AppTheme.NoActionBar"/>
+
         <activity android:name=".activity_fragments.ActivityPhotoUpload"
             android:theme="@style/Theme.Transparent">
         </activity>

@@ -58,8 +58,6 @@
             android:textSize="18sp"
             tools:ignore="HardcodedText" />
 
-
-
         <ImageButton
             android:id="@+id/menu_popup"
             android:layout_width="40dp"

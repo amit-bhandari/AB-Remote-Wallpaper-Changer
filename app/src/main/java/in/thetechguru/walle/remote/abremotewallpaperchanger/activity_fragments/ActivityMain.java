@@ -7,9 +7,11 @@ import android.animation.ValueAnimator;
 import android.app.FragmentManager;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -76,6 +78,7 @@ public class ActivityMain extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setNotificationChannelForOreoPlus();
 
+        problem();
         if(FirebaseUtil.getCurrentUser()==null){
             startActivity(new Intent(this, ActivityLoginSignup.class));
             finish();
@@ -87,6 +90,9 @@ public class ActivityMain extends AppCompatActivity
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         User user = dataSnapshot.getValue(User.class);
+                        if (user != null) {
+                            MyApp.getPref().edit().putString("username",user.username).apply();
+                        }
                         MyApp.setUser(user);
                         tabLayout.setVisibility(View.VISIBLE);
                         viewPager.setVisibility(View.VISIBLE);
@@ -115,24 +121,23 @@ public class ActivityMain extends AppCompatActivity
 
         navigationView.setNavigationItemSelectedListener(this);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            Window window = getWindow();
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
-            window.setStatusBarColor(getResources().getColor(R.color.transparent));
-            window.getDecorView().setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
-        }
-
         Glide.with(this)
-                .load("https://hdwallsource.com/img/2014/9/black-wallpaper-15467-15939-hd-wallpapers.jpg")
+                .load("https://i2.wp.com/theprehabguys.com/wp-content/uploads/2016/12/black-background.jpg?ssl=1")
                 //.centerCrop()
                 //.crossFade(500)
                 .into((ImageView)findViewById(R.id.full_background));
 
 
         colorChange();
+    }
+
+    void problem(){
+
+        int[] array = new int[]{1,5,2,6,2};
+        for(int i=1; i<array.length; i++){
+            System.out.println(array[i]-array[i-1]);
+        }
+
     }
 
     private void colorChange() {
@@ -208,6 +213,12 @@ public class ActivityMain extends AppCompatActivity
     private void setUpDrawerHeader(){
         TextView userName = navigationView.getHeaderView(0).findViewById(R.id.username);
         TextView emailId = navigationView.getHeaderView(0).findViewById(R.id.email_id);
+        ImageView imageView = navigationView.getHeaderView(0).findViewById(R.id.imageView);
+        Glide.with(this)
+                .load(MyApp.getUser().pic_url)
+                .placeholder(R.drawable.person_blue)
+                .centerCrop()
+                .into(imageView);
         userName.setText(MyApp.getUser().display_name);
         emailId.setText(FirebaseUtil.getCurrentUser().getEmail());
     }
@@ -233,7 +244,10 @@ public class ActivityMain extends AppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+            Intent startMain = new Intent(Intent.ACTION_MAIN);
+            startMain.addCategory(Intent.CATEGORY_HOME);
+            startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(startMain);
         }
     }
 
@@ -298,19 +312,81 @@ public class ActivityMain extends AppCompatActivity
 
         switch (id){
             case R.id.nav_signout:
-
                 FirebaseUtil.getAuth().signOut();
-
                 //remove token from server
                 //FirebaseUtil.getNotificationTokenRef().child(MyApp.getUser().username).removeValue();
-
                 startActivity(new Intent(this, ActivityLoginSignup.class));
                 finish();
+                break;
+
+            case R.id.nav_history:
+                startActivity(new Intent(this, ActivityHistory.class));
+                break;
+
+            case R.id.nav_rate:
+                rateUs();
+                break;
+
+            case R.id.nav_settings:
+                Toast.makeText(this, "Nothing here yet", Toast.LENGTH_SHORT).show();
+                break;
+
+            case R.id.nav_share:
+                shareApp();
+                break;
+
+            case R.id.nav_write_me:
+                feedbackEmail();
                 break;
         }
 
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private void feedbackEmail() {
+        String myDeviceModel = Build.MODEL;
+        Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
+                "mailto",getString(R.string.au_email_id), null));
+        String[] address = new String[]{getString(R.string.au_email_id)};
+        emailIntent.putExtra(Intent.EXTRA_EMAIL, address);
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Feedback for " + myDeviceModel);
+        emailIntent.putExtra(Intent.EXTRA_TEXT, "Hello AndroidDevs, \n\n");
+        startActivity(Intent.createChooser(emailIntent, "Send Feedback"));
+    }
+
+    private void shareApp() {
+        try {
+            Intent i = new Intent(Intent.ACTION_SEND);
+            i.setType("text/plain");
+            i.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.app_name));
+            String sAux = getString(R.string.main_act_share_app_text);
+            sAux = sAux + getString(R.string.share_app) + " \n\n";
+            i.putExtra(Intent.EXTRA_TEXT, sAux);
+            startActivity(Intent.createChooser(i, getString(R.string.main_act_share_app_choose)));
+        } catch(Exception e) {
+            //e.toString();
+        }
+    }
+
+    private void rateUs(){
+        new MaterialDialog.Builder(this)
+                .title(R.string.main_act_rate_us_title)
+                .content(getString(R.string.main_act_rate_us))
+                .positiveText(getString(R.string.rate_now))
+                .negativeText(getString(R.string.cancel))
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        final String appPackageName = getPackageName(); // getPackageName() from Context or Activity object
+                        try {
+                            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName)));
+                        } catch (ActivityNotFoundException anfe) {
+                            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + appPackageName)));
+                        }
+                    }
+                })
+                .show();
     }
 
     private void setupViewPager(ViewPager viewPager) {

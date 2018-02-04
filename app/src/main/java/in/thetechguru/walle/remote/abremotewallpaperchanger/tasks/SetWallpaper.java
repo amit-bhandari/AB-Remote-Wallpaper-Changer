@@ -3,6 +3,7 @@ package in.thetechguru.walle.remote.abremotewallpaperchanger.tasks;
 import android.app.WallpaperManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -20,11 +21,14 @@ import java.io.IOException;
 
 import in.thetechguru.walle.remote.abremotewallpaperchanger.MyApp;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.helpers.FirebaseUtil;
+import in.thetechguru.walle.remote.abremotewallpaperchanger.history.HistoryItem;
+import in.thetechguru.walle.remote.abremotewallpaperchanger.history.HistoryRepo;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.model.HttpsRequestPayload;
+import in.thetechguru.walle.remote.abremotewallpaperchanger.model.User;
 
 /**
  * Created by AB on 2017-10-26.
- * task to set wallpaper given url of image
+ * task to set wallpaper given path of image
  * download it from storage and then set it as wallpaper
  * and then delete it from sever
  */
@@ -59,13 +63,14 @@ public class SetWallpaper extends Thread {
                     return;
                 }
 
+
                 final File finalLocalFile = localFile;
                 uploadedFile.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
                     @Override
                     public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
                         // Local temp file has been created
                         Log.d("SetWallpaper", "onSuccess: downloaded file in local : " + taskSnapshot.toString());
-                        setWallpaper(getBitmapFromFile(finalLocalFile));
+                        setWallpaper(finalLocalFile);
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
@@ -88,7 +93,8 @@ public class SetWallpaper extends Thread {
                 });
             }
 
-            private void setWallpaper(Bitmap photo){
+            private void setWallpaper(File localFile){
+                Bitmap photo = getBitmapFromFile(localFile);
                 WallpaperManager myWallpaperManager
                         = WallpaperManager.getInstance(MyApp.getContext());
 
@@ -100,9 +106,21 @@ public class SetWallpaper extends Thread {
                         return;
                     }
 
+                    //changed successfully
+                    HistoryItem item = new HistoryItem(fromUser, "self",System.currentTimeMillis(), Uri.fromFile(localFile).toString());
+                    HistoryRepo.getInstance().putHistoryItem(item);
+
+                    //@todo change this implementaion
+                    User user = MyApp.getUser();
+                    String username;
+                    if(user!=null){
+                        username = user.username;
+                    }else {
+                        username = MyApp.getPref().getString("username","");
+                    }
                     //notify firebase function for sending fcm to userName
                     HttpsRequestPayload payload = new HttpsRequestPayload(fromUser
-                            , MyApp.getUser().username
+                            , username
                             , HttpsRequestPayload.STATUS_CODE.WALLPAPER_CHANGED
                             ,null);
                     new SendHttpsRequest(payload).start();

@@ -3,9 +3,38 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
 
+
+    <item
+        android:id="@+id/nav_history"
+        android:icon="@drawable/ic_history_black_24dp"
+        android:title="@string/title_history" />
+
+    <item
+        android:id="@+id/nav_share"
+        android:icon="@drawable/ic_share_black_24dp"
+        android:title="@string/title_share" />
+
+    <item
+        android:id="@+id/nav_write_me"
+        android:icon="@drawable/ic_feedback_black_24dp"
+        android:title="@string/title_write_me" />
+
+
+    <item
+        android:id="@+id/nav_rate"
+        android:icon="@drawable/ic_star_black_24dp"
+        android:title="@string/title_rate_us" />
+
+    <item
+        android:id="@+id/nav_settings"
+        android:icon="@drawable/ic_settings_black_24dp"
+        android:title="@string/action_settings" />
+
     <item
         android:id="@+id/nav_signout"
-        android:icon="@drawable/person_blue"
+        android:icon="@drawable/ic_people_black_24dp"
         android:title="@string/title_sign_out" />
+
+
 
 </menu>

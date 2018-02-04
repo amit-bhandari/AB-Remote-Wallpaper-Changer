@@ -9,15 +9,14 @@
 
     <ImageView
         android:id="@+id/full_background"
-        android:fitsSystemWindows="true"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerCrop"
-        android:background="@color/gray"
         android:contentDescription="full_background"
         tools:ignore="HardcodedText" />
 
     <include
+
         layout="@layout/app_bar_activity_main"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

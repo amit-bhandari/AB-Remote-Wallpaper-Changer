@@ -41,6 +41,7 @@ import butterknife.ButterKnife;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.MyApp;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.R;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.helpers.FirebaseUtil;
+import in.thetechguru.walle.remote.abremotewallpaperchanger.history.HistoryRepo;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.model.Constants;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.model.User;
 

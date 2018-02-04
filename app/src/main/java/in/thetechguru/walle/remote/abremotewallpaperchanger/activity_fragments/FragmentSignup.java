@@ -257,13 +257,14 @@ public class FragmentSignup  extends Fragment implements  GoogleApiClient.OnConn
                 }else {
                     FirebaseUtil.getUsernamesReference().child(user.username).setValue(firebaseUser.getUid());
 
+                    MyApp.getPref().edit().putString("username",user.username).apply();
+
                     //send token to server
                     String token = MyApp.getPref().getString(getString(R.string.notification_token),"");
                     if(user.username==null || user.username.equals("") || token.equals("")) return;
                     FirebaseUtil.getNotificationTokenRef().child(user.username).setValue(token);
 
                     //USER CREATION PROCESS COMPLETE
-
                     MyApp.setUser(user);
                     startActivity(new Intent(getActivity(), ActivityMain.class));
                     getActivity().finish();

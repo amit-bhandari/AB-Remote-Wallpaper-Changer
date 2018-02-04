@@ -5,6 +5,7 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="action_settings">Settings</string>
+    <string name="rate_now">Rate Now</string>
 
     <!-- sign up login screen -->
     <string name="email_id_hint">Email Id</string>
@@ -71,5 +72,24 @@
     <string name="permission_grant_title">Permission Needed</string>
     <string name="permission_grant_content">To store wallpapers in SD Card, please grant storage access permission</string>
     <string name="permission_grant_pos">Grant</string>
+    <string name="title_history">History</string>
+
+    <string name="changed_by">Changed by %1$s</string>
+    <string name="you_changed">You changed %1$s\'s</string>
+    <string name="title_share">Share</string>
+    <string name="title_write_me">Write Me</string>
+    <string name="title_rate_us">Rate Us</string>
+    <string name="title_settings">Setting</string>
+
+    <string name="share_app">https://play.google.com/store/apps/details?id=in.thetechguru.walle.remote.abremotewallpaperchanger</string>
+    <string name="main_act_share_app_text">\nEnjoy this unique application which allows you to change wallpaper of loved ones (or not so much loved ones for that matter) remotely.\n\n</string>
+    <string name="main_act_share_app_choose">Choose One</string>
+
+
+    <string name="au_email_id">amit.bhandari.c@gmail.com</string>
+
+
+    <string name="main_act_rate_us">Loving AB Remote Wallpaper Changer? Please take a time to rate it on store.</string>
+    <string name="main_act_rate_us_title">Rate Us</string>
 
 </resources>
