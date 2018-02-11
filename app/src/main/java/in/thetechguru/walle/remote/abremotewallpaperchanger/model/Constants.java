@@ -11,6 +11,7 @@ public class Constants {
     public interface ACTIONS{
         String REFRESH_FRIEND_LIST = "refresh.friends.list";
         String REFRESH_BLOCK_LIST = "refresh.block.list";
+        String REFRESH_REQUESTS = "refresh.requests.list";
     }
 
 

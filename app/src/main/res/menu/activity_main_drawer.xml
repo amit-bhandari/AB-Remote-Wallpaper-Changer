@@ -19,6 +19,10 @@
         android:icon="@drawable/ic_feedback_black_24dp"
         android:title="@string/title_write_me" />
 
+    <item
+        android:id="@+id/nav_ab_music"
+        android:icon="@drawable/ic_library_music_black_24dp"
+        android:title="@string/title_ab_music" />
 
     <item
         android:id="@+id/nav_rate"
@@ -34,6 +38,11 @@
         android:id="@+id/nav_signout"
         android:icon="@drawable/ic_people_black_24dp"
         android:title="@string/title_sign_out" />
+
+    <item
+        android:id="@+id/nav_instagram"
+        android:icon="@drawable/ic_person_black_24dp"
+        android:title="@string/title_find_me_on_instagram" />
 
 
 

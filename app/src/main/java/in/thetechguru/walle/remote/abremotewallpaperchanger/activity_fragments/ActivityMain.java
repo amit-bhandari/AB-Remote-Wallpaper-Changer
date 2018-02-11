@@ -16,8 +16,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.View;
@@ -71,7 +74,17 @@ public class ActivityMain extends AppCompatActivity
     @BindView(R.id.color_change_layout_view) View colorChangeView;
     @BindView(R.id.root_view_app_bar_main) View rootViewAppbarMain;
 
+    final static String INSTA_WEBSITE = "https://www.instagram.com/_amit_bhandari/?hl=en";
+
+
     private ViewPagerAdapter adapter;
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        //call profile fragment
+        Fragment fragment = adapter.get(viewPager.getCurrentItem());
+        fragment.onActivityResult(requestCode, resultCode, data);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -159,7 +172,7 @@ public class ActivityMain extends AppCompatActivity
                     Animator animator;
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         animator = ViewAnimationUtils.createCircularReveal(colorChangeView, x, y, 0, endRadius);
-                        //animator.setDuration(1000);
+                        animator.setDuration(300);
                         colorChangeView.setVisibility(View.VISIBLE);
                         animator.start();
                     }
@@ -171,9 +184,10 @@ public class ActivityMain extends AppCompatActivity
                     int startRadius = Math.max(rootViewAppbarMain.getWidth(), rootViewAppbarMain.getHeight());
                     int endRadius = 0;
 
-                    Animator anim = null;
+                    Animator anim;
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         anim = ViewAnimationUtils.createCircularReveal(colorChangeView, x, y, startRadius, endRadius);
+                        anim.setDuration(300);
                         anim.addListener(new Animator.AnimatorListener() {
                             @Override
                             public void onAnimationStart(Animator animator) {
@@ -287,16 +301,23 @@ public class ActivityMain extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
+        moveToTabX();
+    }
+
+    private void moveToTabX() {
         if(getIntent().getExtras()!=null){
             String tab = getIntent().getExtras().getString("tab");
             if(tab!=null && viewPager!=null) {
+                Log.d("ActivityMain", "onResume: setting tab " + tab);
                 switch (tab) {
                     case "friends":
                         viewPager.setCurrentItem(0);
+                        LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(Constants.ACTIONS.REFRESH_FRIEND_LIST));
                         break;
 
                     case "requests":
                         viewPager.setCurrentItem(1);
+                        LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(Constants.ACTIONS.REFRESH_REQUESTS));
                         break;
                 }
                 Log.d("ActivityMain", "onResume: switch to tab " + tab);
@@ -338,12 +359,36 @@ public class ActivityMain extends AppCompatActivity
             case R.id.nav_write_me:
                 feedbackEmail();
                 break;
+
+            case R.id.nav_ab_music:
+                final String appPackageName = "com.bhandari.music"; // getPackageName() from Context or Activity object
+                try {
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName)));
+                } catch (ActivityNotFoundException anfe) {
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + appPackageName)));
+                }
+                Toast.makeText(this, "Try out this awesome free music and lyrics fetching app", Toast.LENGTH_SHORT).show();
+                break;
+
+            case R.id.nav_instagram:
+                openUrl(Uri.parse(INSTA_WEBSITE));
+                break;
+
         }
 
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 
+
+    private void openUrl(Uri parse) {
+        try {
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, parse);
+            startActivity(browserIntent);
+        } catch (Exception e) {
+            Toast.makeText(this, "Error opening browser", Toast.LENGTH_SHORT).show();
+        }
+    }
     private void feedbackEmail() {
         String myDeviceModel = Build.MODEL;
         Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
@@ -396,6 +441,7 @@ public class ActivityMain extends AppCompatActivity
         adapter.addFragment(new FragmentBlockList(), "Blocked");
         adapter.addFragment(new FragmentProfile(), "Profile");
         viewPager.setAdapter(adapter);
+        moveToTabX();
     }
 
     @OnClick(R.id.fab)
@@ -441,7 +487,8 @@ public class ActivityMain extends AppCompatActivity
                         }
 
                         //check if already friend
-                        if(((FragmentFriends)adapter.get(viewPager.getCurrentItem())).isFriend(userName)){
+                        //@todo remove hardcoding 0
+                        if(((FragmentFriends)adapter.get(0)).isFriend(userName)){
                             inputId.setError(getString(R.string.friend_already_added_error));
                             dialog.getActionButton(DialogAction.POSITIVE).setEnabled(true);
                             progressBar.setVisibility(View.INVISIBLE);

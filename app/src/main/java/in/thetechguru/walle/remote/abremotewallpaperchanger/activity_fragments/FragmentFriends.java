@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -25,22 +26,39 @@ import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.OnProgressListener;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+import com.theartofdev.edmodo.cropper.CropImage;
+import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.MyApp;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.R;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.helpers.FirebaseUtil;
+import in.thetechguru.walle.remote.abremotewallpaperchanger.history.HistoryItem;
+import in.thetechguru.walle.remote.abremotewallpaperchanger.history.HistoryRepo;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.model.Constants;
+import in.thetechguru.walle.remote.abremotewallpaperchanger.model.HttpsRequestPayload;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.model.User;
+import in.thetechguru.walle.remote.abremotewallpaperchanger.tasks.SendHttpsRequest;
+
+import static android.app.Activity.RESULT_OK;
 
 /**
  * Created by abami on 1/17/2018.
@@ -100,7 +118,7 @@ public class FragmentFriends extends Fragment implements SwipeRefreshLayout.OnRe
     public void onResume() {
         super.onResume();
         if(getContext()!=null) {
-            LocalBroadcastManager.getInstance(getContext()).registerReceiver(refreshReceiver, new IntentFilter(Constants.ACTIONS.REFRESH_BLOCK_LIST));
+            LocalBroadcastManager.getInstance(getContext()).registerReceiver(refreshReceiver, new IntentFilter(Constants.ACTIONS.REFRESH_FRIEND_LIST));
         }
     }
 
@@ -126,18 +144,36 @@ public class FragmentFriends extends Fragment implements SwipeRefreshLayout.OnRe
         }
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Log.d("FragmentFriends", "onActivityResult: ");
+        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+            CropImage.ActivityResult result = CropImage.getActivityResult(data);
+            if (resultCode == RESULT_OK) {
+                Uri mFileUri = result.getUri();
+                adapter.uploadPhoto(mFileUri);
+            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
+                try {
+                    throw result.getError();
+                } catch (Exception e) {
+                    Log.d("FragmentFriends", "onActivityResult: " + e.getLocalizedMessage());
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 
     class FriendListAdapter extends RecyclerView.Adapter<FriendListAdapter.MyViewHolder>
         implements PopupMenu.OnMenuItemClickListener{
 
         private List<User> users = new ArrayList<>();
-        private Handler handler;
-        private Activity activity;
         GetFriendList getFriendListThread;
+        private Activity activity;
 
         FriendListAdapter(Activity activity) {
             this.activity = activity;
-            handler = new Handler(Looper.getMainLooper());
+            //handler = new Handler(Looper.getMainLooper());
             getFriendListThread = new GetFriendList();
             refreshList();
         }
@@ -172,20 +208,23 @@ public class FragmentFriends extends Fragment implements SwipeRefreshLayout.OnRe
             return users.size();
         }
 
-        List<User> getList (){return users;}
+        private List<User> getList (){return users;}
 
         @Override
         public boolean onMenuItemClick(MenuItem menuItem) {
             switch (menuItem.getItemId()) {
                 case R.id.action_change_wallpaper:
-                    if(getActivity() instanceof ActivityMain){
-                        Intent i = new Intent(getActivity(), ActivityPhotoUpload.class);
-                        i.putExtra("userName", users.get(clickedPosition).username);
-                        activity.startActivity(i);
-                    }
+                    if(activity==null) return false;
+                    CropImage.activity()
+                            .setGuidelines(CropImageView.Guidelines.ON)
+                            //.setAspectRatio(1,1)
+                            //.setOutputCompressQuality(5)
+                            .start(activity);
                     break;
 
                 case R.id.action_block_user:
+                    Toast.makeText(MyApp.getContext(), getString(R.string.blocked_toast, users.get(clickedPosition).display_name), Toast.LENGTH_SHORT).show();
+
                     //add token to blocked users list
                     FirebaseUtil.getBlockedRef().child(users.get(clickedPosition).username).setValue(true);
 
@@ -195,20 +234,97 @@ public class FragmentFriends extends Fragment implements SwipeRefreshLayout.OnRe
                             .child(MyApp.getUser().username).removeValue();
                     FirebaseUtil.getConfirmedRef().child(users.get(clickedPosition).username).removeValue();
 
+                    users.remove(clickedPosition);
+                    notifyItemRemoved(clickedPosition);
                     break;
 
                 case R.id.action_remove_friend:
                     String userName = users.get(clickedPosition).username;
+
+                    Toast.makeText(MyApp.getContext(), getString(R.string.friend_removed_toast, users.get(clickedPosition).display_name), Toast.LENGTH_SHORT).show();
+
                     //remove from pending and requests sections
                     FirebaseUtil.getConfirmedRef()
                             .child(userName).removeValue();
                     FirebaseUtil.getConfirmedRef(userName)
                             .child(MyApp.getUser().username).removeValue();
 
-                    refreshList();
+                    users.remove(clickedPosition);
+                    notifyItemRemoved(clickedPosition);
                     break;
             }
             return true;
+        }
+
+        private void uploadPhoto(final Uri mFileUri){
+
+            final String randomId = UUID.randomUUID().toString();
+            StorageReference uploadedFile = FirebaseUtil.getStorage().child(randomId);
+            Log.d("FragmentFriends", "uploadPhoto: "+ uploadedFile.getPath());
+            final UploadTask uploadTask = uploadedFile.putFile(mFileUri);
+
+            MaterialDialog mDialog = null;
+            if(activity!=null) {
+                MaterialDialog.Builder builder = new MaterialDialog.Builder(activity)
+                        .title(R.string.photo_upload_title)
+                        .content(R.string.photo_upload_content)
+                        .autoDismiss(false)
+                        .cancelable(false)
+                        .negativeText(R.string.cancel)
+                        .onNegative(new MaterialDialog.SingleButtonCallback() {
+                            @Override
+                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                uploadTask.cancel();
+                                dialog.dismiss();
+                            }
+                        })
+                        .progress(true, 0);
+
+                mDialog = builder.build();
+            }
+
+            final MaterialDialog dialog = mDialog;
+            uploadTask
+                    .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                            int progress = (int) ((100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount());
+                            if(dialog!=null)
+                                dialog.setContent(getString(R.string.photo_upload_content) + " " + progress + " %");
+                            Log.d("FragmentFriends", "onProgress: " + progress);
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception exception) {
+                    if(dialog!=null && dialog.isShowing()) dialog.dismiss();
+                    Toast.makeText(MyApp.getContext(), "File upload failure", Toast.LENGTH_SHORT).show();
+                }
+            }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    Uri downloadUrl = taskSnapshot.getDownloadUrl();
+                    if (downloadUrl != null) {
+                        Log.d("FragmentFriends", "onSuccess: " + downloadUrl.toString());
+                    }
+                    Toast.makeText(MyApp.getContext(), "Uploaded successfully", Toast.LENGTH_SHORT).show();
+
+                    //add history item in
+                    HistoryItem item = new HistoryItem(randomId, "self", users.get(clickedPosition).username,System.currentTimeMillis(), mFileUri.toString());
+                    HistoryRepo.getInstance().putHistoryItem(item);
+
+                    //notify firebase function for sending fcm to userName
+                    HttpsRequestPayload payload = new HttpsRequestPayload(users.get(clickedPosition).username
+                            , MyApp.getUser().username
+                            , HttpsRequestPayload.STATUS_CODE.CHANGE_WALLPAPER
+                            , randomId);
+                    new SendHttpsRequest(payload).start();
+
+                    if(dialog!=null && dialog.isShowing()) dialog.dismiss();
+                }
+            });
+
+            if(dialog!=null)
+                dialog.show();
         }
 
         void onClick(View view, int position) {

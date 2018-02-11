@@ -39,9 +39,9 @@
     <string name="add_friend_title">Add friend</string>
     <string name="add_friend_pos">Add</string>
     <string name="add_friend_content">Enter User Name of person you want to add as friend.</string>
-    <string name="error_zero_friends">No Friends!</string>
+    <string name="error_zero_friends">No Friends! Swipe down to refresh</string>
     <string name="friend_list_fetch_unknown_error">Error fetching Friend List, try again later.</string>
-    <string name="error_no_friend_requests">No Friend Requests!</string>
+    <string name="error_no_friend_requests">No Friend Requests! Swipe down to refresh</string>
     <string name="requests_fetch_unknown_error">Error fetching Friend Requests, try again later.</string>
     <string name="friend_already_added_error">User is already friend</string>
     <string name="photo_upload_title">Please wait</string>
@@ -66,8 +66,8 @@
     <string name="title_reject">Reject</string>
     <string name="title_block">Block</string>
     <string name="title_remove_friend">Remove Friend</string>
-    <string name="error_no_requests">No New Requests!</string>
-    <string name="error_no_blocked_friends">No Blocked Friends!</string>
+    <string name="error_no_requests">No New Requests! Swipe down to refresh</string>
+    <string name="error_no_blocked_friends">No Blocked Friends! Swipe down to refresh</string>
     <string name="cancel">Cancel</string>
     <string name="permission_grant_title">Permission Needed</string>
     <string name="permission_grant_content">To store wallpapers in SD Card, please grant storage access permission</string>
@@ -91,5 +91,16 @@
 
     <string name="main_act_rate_us">Loving AB Remote Wallpaper Changer? Please take a time to rate it on store.</string>
     <string name="main_act_rate_us_title">Rate Us</string>
+
+
+    <!-- toasts and stuff -->
+    <string name="blocked_toast">%1$s added to block list</string>
+    <string name="unblocked_toast">%1$s removed from block list</string>
+    <string name="friend_removed_toast">%1$s removed from friend list</string>
+    <string name="friend_added_toast">Now you can change %1$s\'s wallpaper</string>
+    <string name="title_ab_music">AB Music</string>
+    <string name="title_find_me_on_instagram">Find me on Instagram</string>
+    <string name="tap_to_change">Tap to change</string>
+    <string name="error_invalid_display_name">Invalid Name. Should be minimum 6 characters.</string>
 
 </resources>

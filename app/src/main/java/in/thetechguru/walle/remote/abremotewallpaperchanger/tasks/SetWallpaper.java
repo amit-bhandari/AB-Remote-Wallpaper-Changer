@@ -35,21 +35,21 @@ import in.thetechguru.walle.remote.abremotewallpaperchanger.model.User;
 
 public class SetWallpaper extends Thread {
 
-    public SetWallpaper(String wallpaper_url, String fromUser){
-        super(getRunnable(wallpaper_url, fromUser));
+    public SetWallpaper(String id, String fromUser){
+        super(getRunnable(id, fromUser));
     }
 
-    private static Runnable getRunnable(final String wallpaper_url, final String fromUser){
+    private static Runnable getRunnable(final String id, final String fromUser){
         return new Runnable() {
             @Override
             public void run() {
 
-                final StorageReference uploadedFile = FirebaseUtil.getStorage().child(wallpaper_url);
+                final StorageReference uploadedFile = FirebaseUtil.getStorage().child(id);
                 File localFile;
                 try {
 
                     String directory_path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/AB_Wall/";
-                    String file_name = fromUser + "_" + wallpaper_url + ".jpg";
+                    String file_name = fromUser + "_" + id + ".jpg";
                     //create directory if not present
                     File file = new File(directory_path);
                     if(!file.exists() && !file.mkdir()){
@@ -104,10 +104,13 @@ public class SetWallpaper extends Thread {
                     } catch (IOException e) {
                         e.printStackTrace();
                         return;
+                    } catch (Exception e){
+                        e.printStackTrace();
+                        return;
                     }
 
                     //changed successfully
-                    HistoryItem item = new HistoryItem(fromUser, "self",System.currentTimeMillis(), Uri.fromFile(localFile).toString());
+                    HistoryItem item = new HistoryItem(id, fromUser, "self",System.currentTimeMillis(), Uri.fromFile(localFile).toString());
                     HistoryRepo.getInstance().putHistoryItem(item);
 
                     //@todo change this implementaion
@@ -122,7 +125,7 @@ public class SetWallpaper extends Thread {
                     HttpsRequestPayload payload = new HttpsRequestPayload(fromUser
                             , username
                             , HttpsRequestPayload.STATUS_CODE.WALLPAPER_CHANGED
-                            ,null);
+                            , id);
                     new SendHttpsRequest(payload).start();
 
                     Log.d("SetWallpaper", "setWallpaper: successfully changed wallpaper");

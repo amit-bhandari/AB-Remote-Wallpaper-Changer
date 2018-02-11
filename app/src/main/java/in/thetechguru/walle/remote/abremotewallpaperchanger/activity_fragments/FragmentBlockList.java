@@ -25,6 +25,7 @@ import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -92,7 +93,7 @@ public class FragmentBlockList extends Fragment implements SwipeRefreshLayout.On
     public void onResume() {
         super.onResume();
         if(getContext()!=null) {
-            LocalBroadcastManager.getInstance(getContext()).registerReceiver(refreshReceiver, new IntentFilter(Constants.ACTIONS.REFRESH_FRIEND_LIST));
+            LocalBroadcastManager.getInstance(getContext()).registerReceiver(refreshReceiver, new IntentFilter(Constants.ACTIONS.REFRESH_BLOCK_LIST));
         }
     }
 
@@ -166,6 +167,9 @@ public class FragmentBlockList extends Fragment implements SwipeRefreshLayout.On
                     //remove token from blocked users list
                     FirebaseUtil.getBlockedRef().child(users.get(clickedPosition).username).removeValue();
 
+                    Toast.makeText(MyApp.getContext(), getString(R.string.unblocked_toast, users.get(clickedPosition).display_name), Toast.LENGTH_SHORT).show();
+                    users.remove(clickedPosition);
+                    notifyItemRemoved(clickedPosition);
                     /*
                     //add token back confirmed in both user directories i.e
                     //from self --> confirmed and user_getting_unblocked --> confirmed
@@ -179,7 +183,7 @@ public class FragmentBlockList extends Fragment implements SwipeRefreshLayout.On
                         }
                     });;
                     */
-                    refreshList();
+                    //refreshList();
 
                     break;
             }

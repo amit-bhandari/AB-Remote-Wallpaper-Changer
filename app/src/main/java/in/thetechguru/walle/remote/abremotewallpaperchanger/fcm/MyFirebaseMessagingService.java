@@ -3,6 +3,7 @@ package in.thetechguru.walle.remote.abremotewallpaperchanger.fcm;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
@@ -13,6 +14,8 @@ import java.util.Random;
 
 import in.thetechguru.walle.remote.abremotewallpaperchanger.R;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.activity_fragments.ActivityMain;
+import in.thetechguru.walle.remote.abremotewallpaperchanger.history.HistoryItem;
+import in.thetechguru.walle.remote.abremotewallpaperchanger.history.HistoryRepo;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.model.Constants;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.model.HttpsRequestPayload;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.tasks.SetWallpaper;
@@ -51,7 +54,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     break;
 
                 case HttpsRequestPayload.STATUS_CODE.WALLPAPER_CHANGED:
-                    postWallpaperChanged(fromUser);
+                    postWallpaperChanged(wallpaper_url,fromUser);
                     break;
             }
         }
@@ -69,6 +72,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this, Constants.CHANNEL_ID)
                         .setSmallIcon(R.drawable.person_blue)
+                        .setAutoCancel(true)
                         .setContentTitle("Friend request")
                         .setContentText(fromUser + " wants to connect with you!")
                         .setContentIntent(pendingIntent);
@@ -95,6 +99,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 new NotificationCompat.Builder(this, Constants.CHANNEL_ID)
                         .setSmallIcon(R.drawable.person_blue)
                         .setContentTitle("Request Accepted")
+                        .setAutoCancel(true)
                         .setContentText(fromUser + " is your friend now.")
                         .setContentIntent(pendingIntent);
 
@@ -106,7 +111,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         }
     }
 
-    private void postWallpaperChanged(String fromUser){
+    private void postWallpaperChanged(String wallpaperUrl, String fromUser){
 
         PendingIntent pendingIntent;
         Intent notificationIntent = new Intent(this, ActivityMain.class);
@@ -120,8 +125,12 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 new NotificationCompat.Builder(this, Constants.CHANNEL_ID)
                         .setSmallIcon(R.drawable.person_blue)
                         .setContentTitle("Wallpaper changed")
+                        .setAutoCancel(true)
                         .setContentText("Successfully changed wallpaper for " + fromUser )
                         .setContentIntent(pendingIntent);
+
+        //update history item for showing success
+        HistoryRepo.getInstance().updateHistoryItem(wallpaperUrl, HistoryItem.STATUS.SUCCESS);
 
         int mNotificationId = 3;
         NotificationManager mNotifyMgr =

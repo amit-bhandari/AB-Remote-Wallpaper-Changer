@@ -15,4 +15,7 @@
     <color name="reveal_color_1">#30700149</color>
     <color name="reveal_color_2">#30016664</color>
 
+    <color name="color_gray">#aeadad</color>
+
+    <color name="card_item_background">#15cbcbcb</color>
 </resources>

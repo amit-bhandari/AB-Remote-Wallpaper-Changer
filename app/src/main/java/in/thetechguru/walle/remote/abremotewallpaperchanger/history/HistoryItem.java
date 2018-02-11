@@ -12,15 +12,28 @@ import android.support.annotation.NonNull;
 @Entity
 public class HistoryItem {
 
+    public interface STATUS{
+        int SUCCESS = 0;
+        int WAITING = 1;
+        int FAILURE = 2;
+    }
+
     HistoryItem(){}
 
     @Ignore
-    public HistoryItem(String changedBy, String changedOf, long timestamp, String path){
+    public HistoryItem(String historyId, String changedBy, String changedOf, long timestamp, String path){
+        this.historyId = historyId;
         this.changedBy = changedBy;
         this.changedOf = changedOf;
         this.timestamp = timestamp;
         this.path = path;
     }
+
+    public int status = STATUS.WAITING;
+
+    @PrimaryKey
+    @NonNull
+    public String historyId = "";
 
     //username of person who changed wallpaper
     public String changedBy;
@@ -29,7 +42,6 @@ public class HistoryItem {
     public String changedOf;
 
     //time of changing
-    @PrimaryKey
     public long timestamp;
 
     //path of image for thumbnail purpose

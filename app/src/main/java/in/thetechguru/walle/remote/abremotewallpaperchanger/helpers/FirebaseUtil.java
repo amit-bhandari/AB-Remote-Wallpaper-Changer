@@ -96,12 +96,12 @@ public class FirebaseUtil {
 
     //get particular display name reference from firebase user id
     public static DatabaseReference getDisplayNameRef(String uId){
-        return getDatabase().getReference().child("users").child(uId).child("name");
+        return getDatabase().getReference().child("users").child(uId).child("display_name");
     }
 
     //get particular photo path reference from firebase user id
     public static DatabaseReference getPhotoUrlRef(String uId){
-        return getDatabase().getReference().child("users").child(uId).child("photourl");
+        return getDatabase().getReference().child("users").child(uId).child("pic_url");
     }
 
     //get requests pref for self
@@ -147,6 +147,11 @@ public class FirebaseUtil {
     //get auth instance
     public static FirebaseAuth getAuth(){
         return FirebaseAuth.getInstance();
+    }
+
+    //get profile photo storage refrence
+    public static StorageReference getProfilePhotoRef(){
+        return getStorage().child("profile_photos");
     }
 
 }

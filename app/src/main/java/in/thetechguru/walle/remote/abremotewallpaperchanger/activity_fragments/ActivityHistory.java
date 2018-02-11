@@ -127,7 +127,6 @@ public class ActivityHistory extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(RecyclerView.ViewHolder holder, int i) {
-
             CharSequence ago =
                     DateUtils.getRelativeTimeSpanString(historyItems.get(i).timestamp);
             Log.d("HistoryAdapter", "onBindViewHolder: " + ago);
@@ -138,18 +137,23 @@ public class ActivityHistory extends AppCompatActivity {
                     Glide.with(getApplicationContext()).load(Uri.parse(historyItems.get(i).path))
                             .override(200,200)
                             .centerCrop()
+                            .placeholder(R.drawable.ic_error_outline_black_24dp)
                             .into(((HistorySelfChanged)holder).imageView);
                     ((HistorySelfChanged)holder).timestamp.setText(ago);
+                    if(historyItems.get(i).status==HistoryItem.STATUS.SUCCESS){
+                        ((HistorySelfChanged) holder).changeStatus.setImageDrawable(getResources().getDrawable(R.drawable.ic_check_black_24dp));
+                    }
                     break;
+
                 case VIEW_TYPE_HISTORY_ELSE:
                     ((HistoryElseChanged)holder).textView.setText(getString(R.string.changed_by, historyItems.get(i).changedBy));
                     Glide.with(getApplicationContext()).load(Uri.parse(historyItems.get(i).path))
                             .override(200,200)
                             .centerCrop()
+                            .placeholder(R.drawable.ic_error_outline_black_24dp)
                             .into(((HistoryElseChanged)holder).imageView);
                     ((HistoryElseChanged)holder).timestamp.setText(ago);
             }
-
         }
 
         @Override
@@ -177,6 +181,7 @@ public class ActivityHistory extends AppCompatActivity {
             @BindView(R.id.changed_wallpaper)
             ImageView imageView;
             @BindView(R.id.timestamp) TextView timestamp;
+            @BindView(R.id.change_status) ImageView changeStatus;
 
             HistorySelfChanged(View itemView) {
                 super(itemView);

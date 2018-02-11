@@ -1,7 +1,10 @@
 package in.thetechguru.walle.remote.abremotewallpaperchanger.activity_fragments;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -22,6 +25,7 @@ import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -56,7 +60,33 @@ public class FragmentRequests extends Fragment implements SwipeRefreshLayout.OnR
     private int clickedPosition;
     private FriendsRequestsAdapter adapter;
 
-    public FragmentRequests(){}
+    BroadcastReceiver refreshReceiver;
+
+    public FragmentRequests(){
+        refreshReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if(adapter!=null) adapter.refreshList();
+                Log.d("FragmentRequests", "onReceive: ");
+            }
+        };
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if(getContext()!=null) {
+            LocalBroadcastManager.getInstance(getContext()).unregisterReceiver(refreshReceiver);
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if(getContext()!=null) {
+            LocalBroadcastManager.getInstance(getContext()).registerReceiver(refreshReceiver, new IntentFilter(Constants.ACTIONS.REFRESH_REQUESTS));
+        }
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -173,7 +203,11 @@ public class FragmentRequests extends Fragment implements SwipeRefreshLayout.OnR
                     ,null);
             new SendHttpsRequest(payload).start();
 
-            refreshList();
+
+            Toast.makeText(activity, getString(R.string.friend_added_toast, users.get(clickedPosition).display_name), Toast.LENGTH_SHORT).show();
+            users.remove(clickedPosition);
+            notifyItemRemoved(clickedPosition);
+            //refreshList();
         }
 
         private void rejectFriend() {
@@ -184,7 +218,9 @@ public class FragmentRequests extends Fragment implements SwipeRefreshLayout.OnR
             FirebaseUtil.getPendingRef(userName)
                     .child(MyApp.getUser().username).removeValue();
 
-            refreshList();
+            users.remove(clickedPosition);
+            notifyItemRemoved(clickedPosition);
+            //refreshList();
         }
 
         private void block() {
@@ -205,7 +241,10 @@ public class FragmentRequests extends Fragment implements SwipeRefreshLayout.OnR
                 }
             });
 
-            refreshList();
+            Toast.makeText(MyApp.getContext(), getString(R.string.blocked_toast, users.get(clickedPosition).display_name), Toast.LENGTH_SHORT).show();
+            users.remove(clickedPosition);
+            notifyItemRemoved(clickedPosition);
+            //refreshList();
         }
 
         private void onClick(View view , int position){

@@ -37,7 +37,8 @@
         android:layout_centerVertical="true"
         android:layout_toStartOf="@+id/photo_wrapper"
         android:layout_marginEnd="10dp"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:id="@+id/linearLayout">
 
 
         <TextView
@@ -52,17 +53,35 @@
             android:textSize="18sp"
             tools:ignore="HardcodedText" />
 
-        <TextView
-            android:id="@+id/timestamp"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:ellipsize="marquee"
-            android:singleLine="true"
-            android:text="2 days ago"
-            android:textColor="@color/white"
-            android:textSize="12sp"
             android:layout_gravity="end"
-            tools:ignore="HardcodedText" />
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/timestamp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="marquee"
+                android:singleLine="true"
+                android:text="2 days ago"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                tools:ignore="HardcodedText" />
+
+
+            <ImageView
+                android:id="@+id/change_status"
+                android:layout_gravity="bottom"
+                android:layout_marginStart="10dp"
+                android:layout_width="15dp"
+                android:src="@drawable/ic_access_time_black_24dp"
+                android:scaleType="fitCenter"
+                android:layout_height="15dp" />
+
+        </LinearLayout>
+
 
     </LinearLayout>
 
