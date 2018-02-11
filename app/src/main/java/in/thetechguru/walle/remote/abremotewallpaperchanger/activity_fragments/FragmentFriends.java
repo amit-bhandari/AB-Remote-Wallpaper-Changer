@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
@@ -42,6 +43,7 @@ import com.google.firebase.storage.UploadTask;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -215,42 +217,65 @@ public class FragmentFriends extends Fragment implements SwipeRefreshLayout.OnRe
             switch (menuItem.getItemId()) {
                 case R.id.action_change_wallpaper:
                     if(activity==null) return false;
+                    Uri myUri = Uri.fromFile(new File(activity.getExternalCacheDir(), UUID.randomUUID().toString()));
                     CropImage.activity()
                             .setGuidelines(CropImageView.Guidelines.ON)
+                            .setOutputUri(myUri)
                             //.setAspectRatio(1,1)
                             //.setOutputCompressQuality(5)
                             .start(activity);
                     break;
 
                 case R.id.action_block_user:
-                    Toast.makeText(MyApp.getContext(), getString(R.string.blocked_toast, users.get(clickedPosition).display_name), Toast.LENGTH_SHORT).show();
+                    new MaterialDialog.Builder(activity)
+                            .title(getString(R.string.block_warn, users.get(clickedPosition).display_name) )
+                            .positiveText(R.string.block)
+                            .negativeText(getString(R.string.cancel))
+                            .onPositive(new MaterialDialog.SingleButtonCallback() {
+                                @Override
+                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                    Toast.makeText(MyApp.getContext(), getString(R.string.blocked_toast, users.get(clickedPosition).display_name), Toast.LENGTH_SHORT).show();
 
-                    //add token to blocked users list
-                    FirebaseUtil.getBlockedRef().child(users.get(clickedPosition).username).setValue(true);
+                                    //add token to blocked users list
+                                    FirebaseUtil.getBlockedRef().child(users.get(clickedPosition).username).setValue(true);
 
-                    //remove from confirmed in both user directories i.e
-                    //from self --> blocked and user_getting_blocked --> blocked
-                    FirebaseUtil.getConfirmedRef(users.get(clickedPosition).username)
-                            .child(MyApp.getUser().username).removeValue();
-                    FirebaseUtil.getConfirmedRef().child(users.get(clickedPosition).username).removeValue();
+                                    //remove from confirmed in both user directories i.e
+                                    //from self --> blocked and user_getting_blocked --> blocked
+                                    FirebaseUtil.getConfirmedRef(users.get(clickedPosition).username)
+                                            .child(MyApp.getUser().username).removeValue();
+                                    FirebaseUtil.getConfirmedRef().child(users.get(clickedPosition).username).removeValue();
 
-                    users.remove(clickedPosition);
-                    notifyItemRemoved(clickedPosition);
+                                    users.remove(clickedPosition);
+                                    notifyItemRemoved(clickedPosition);
+                                }
+                            })
+                            .show();
                     break;
 
                 case R.id.action_remove_friend:
-                    String userName = users.get(clickedPosition).username;
+                    new MaterialDialog.Builder(activity)
+                            .title(getString(R.string.remove_friend_warn, users.get(clickedPosition).display_name) )
+                            .positiveText(R.string.remove)
+                            .negativeText(getString(R.string.cancel))
+                            .onPositive(new MaterialDialog.SingleButtonCallback() {
+                                @Override
+                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
 
-                    Toast.makeText(MyApp.getContext(), getString(R.string.friend_removed_toast, users.get(clickedPosition).display_name), Toast.LENGTH_SHORT).show();
+                                    String userName = users.get(clickedPosition).username;
 
-                    //remove from pending and requests sections
-                    FirebaseUtil.getConfirmedRef()
-                            .child(userName).removeValue();
-                    FirebaseUtil.getConfirmedRef(userName)
-                            .child(MyApp.getUser().username).removeValue();
+                                    Toast.makeText(MyApp.getContext(), getString(R.string.friend_removed_toast, users.get(clickedPosition).display_name), Toast.LENGTH_SHORT).show();
 
-                    users.remove(clickedPosition);
-                    notifyItemRemoved(clickedPosition);
+                                    //remove from pending and requests sections
+                                    FirebaseUtil.getConfirmedRef()
+                                            .child(userName).removeValue();
+                                    FirebaseUtil.getConfirmedRef(userName)
+                                            .child(MyApp.getUser().username).removeValue();
+
+                                    users.remove(clickedPosition);
+                                    notifyItemRemoved(clickedPosition);
+                                }
+                            })
+                            .show();
                     break;
             }
             return true;
@@ -330,13 +355,15 @@ public class FragmentFriends extends Fragment implements SwipeRefreshLayout.OnRe
         void onClick(View view, int position) {
             clickedPosition = position;
             switch (view.getId()){
-                        case R.id.menu_popup:
-                            PopupMenu popup=new PopupMenu(getContext(),view, Gravity.RIGHT);
-                            MenuInflater inflater = popup.getMenuInflater();
-                            inflater.inflate(R.menu.menu_friend_item, popup.getMenu());
-                            popup.show();
-                            popup.setOnMenuItemClickListener(this);
-                            break;
+
+                case R.id.card_view:
+                case R.id.menu_popup:
+                    PopupMenu popup=new PopupMenu(getContext(),view, Gravity.END);
+                    MenuInflater inflater = popup.getMenuInflater();
+                    inflater.inflate(R.menu.menu_friend_item, popup.getMenu());
+                    popup.show();
+                    popup.setOnMenuItemClickListener(this);
+                    break;
             }
         }
 
@@ -351,6 +378,7 @@ public class FragmentFriends extends Fragment implements SwipeRefreshLayout.OnRe
             MyViewHolder(View itemView) {
                 super(itemView);
                 ButterKnife.bind(this,itemView);
+                itemView.setOnClickListener(this);
                 popup.setOnClickListener(this);
             }
 

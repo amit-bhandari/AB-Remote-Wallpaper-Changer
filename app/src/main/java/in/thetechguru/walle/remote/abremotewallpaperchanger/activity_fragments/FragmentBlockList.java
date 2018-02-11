@@ -27,6 +27,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -125,8 +127,10 @@ public class FragmentBlockList extends Fragment implements SwipeRefreshLayout.On
 
         private List<User> users = new ArrayList<>();
         GetBlockedList getFriendListThread;
+        Activity activity;
 
         BlockedListAdapter(Activity activity) {
+            this.activity = activity;
             getFriendListThread = new GetBlockedList();
             refreshList();
         }
@@ -162,29 +166,23 @@ public class FragmentBlockList extends Fragment implements SwipeRefreshLayout.On
         @Override
         public boolean onMenuItemClick(MenuItem menuItem) {
             switch (menuItem.getItemId()) {
-
                 case R.id.action_unblock_user:
-                    //remove token from blocked users list
-                    FirebaseUtil.getBlockedRef().child(users.get(clickedPosition).username).removeValue();
+                    new MaterialDialog.Builder(activity)
+                            .title(getString(R.string.unblock_warn, users.get(clickedPosition).display_name) )
+                            .positiveText(R.string.unblock)
+                            .negativeText(getString(R.string.cancel))
+                            .onPositive(new MaterialDialog.SingleButtonCallback() {
+                                @Override
+                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                    //remove token from blocked users list
+                                    FirebaseUtil.getBlockedRef().child(users.get(clickedPosition).username).removeValue();
 
-                    Toast.makeText(MyApp.getContext(), getString(R.string.unblocked_toast, users.get(clickedPosition).display_name), Toast.LENGTH_SHORT).show();
-                    users.remove(clickedPosition);
-                    notifyItemRemoved(clickedPosition);
-                    /*
-                    //add token back confirmed in both user directories i.e
-                    //from self --> confirmed and user_getting_unblocked --> confirmed
-                    FirebaseUtil.getConfirmedRef(users.get(clickedPosition).username)
-                            .child(MyApp.getUser().username).setValue(true);
-                    FirebaseUtil.getConfirmedRef().child(users.get(clickedPosition).username).setValue(true).addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if(getContext()!=null)
-                                LocalBroadcastManager.getInstance(getContext()).sendBroadcast(new Intent(Constants.ACTIONS.REFRESH_FRIEND_LIST));
-                        }
-                    });;
-                    */
-                    //refreshList();
-
+                                    Toast.makeText(MyApp.getContext(), getString(R.string.unblocked_toast, users.get(clickedPosition).display_name), Toast.LENGTH_SHORT).show();
+                                    users.remove(clickedPosition);
+                                    notifyItemRemoved(clickedPosition);
+                                }
+                            })
+                            .show();
                     break;
             }
             return true;
@@ -193,6 +191,7 @@ public class FragmentBlockList extends Fragment implements SwipeRefreshLayout.On
         void onClick(View view, int position) {
             clickedPosition = position;
             switch (view.getId()){
+                case R.id.card_view:
                 case R.id.menu_popup:
                     PopupMenu popup=new PopupMenu(getContext(),view, Gravity.RIGHT);
                     MenuInflater inflater = popup.getMenuInflater();
@@ -214,6 +213,7 @@ public class FragmentBlockList extends Fragment implements SwipeRefreshLayout.On
             MyViewHolder(View itemView) {
                 super(itemView);
                 ButterKnife.bind(this,itemView);
+                itemView.setOnClickListener(this);
                 popup.setOnClickListener(this);
             }
 
@@ -304,3 +304,20 @@ public class FragmentBlockList extends Fragment implements SwipeRefreshLayout.On
 
 
 }
+
+
+/*
+/*
+                                    //add token back confirmed in both user directories i.e
+                                    //from self --> confirmed and user_getting_unblocked --> confirmed
+                                    FirebaseUtil.getConfirmedRef(users.get(clickedPosition).username)
+                                            .child(MyApp.getUser().username).setValue(true);
+                                    FirebaseUtil.getConfirmedRef().child(users.get(clickedPosition).username).setValue(true).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if(getContext()!=null)
+                                                LocalBroadcastManager.getInstance(getContext()).sendBroadcast(new Intent(Constants.ACTIONS.REFRESH_FRIEND_LIST));
+                                        }
+                                    });;
+                                    */
+//refreshList();

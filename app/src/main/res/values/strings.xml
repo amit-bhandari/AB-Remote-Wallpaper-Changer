@@ -102,5 +102,24 @@
     <string name="title_find_me_on_instagram">Find me on Instagram</string>
     <string name="tap_to_change">Tap to change</string>
     <string name="error_invalid_display_name">Invalid Name. Should be minimum 6 characters.</string>
+    <string name="title_clear_history">Clear History</string>
+    <string name="status_empty_history">Empty history.</string>
+    <string name="history_info_text">All wallpaper changes will be logged and displayed here, if any.</string>
+    <string name="clear">Clear</string>
+    <string name="are_you_sure">Are you sure?</string>
+    <string name="history_clear_warning">This is irreversible process and data will be permanently deleted.</string>
+
+
+    <string name="unblock_warn">Unblock %1$s ?</string>
+    <string name="unblock">Unblock</string>
+
+    <string name="block_warn">Block %1$s ?</string>
+    <string name="block">Block</string>
+
+    <string name="remove_friend_warn">Remove friend %1$s ?</string>
+    <string name="remove">Remove</string>
+
+    <string name="reject_friend_warn">Reject friend %1$s ?</string>
+    <string name="reject">Reject</string>
 
 </resources>

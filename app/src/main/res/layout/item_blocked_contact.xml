@@ -3,12 +3,11 @@
 
 <android.support.v7.widget.CardView android:id="@+id/card_view"
     android:layout_width="match_parent"
-    android:layout_height="80dp"
-    app:cardCornerRadius="40dp"
+    android:layout_height="wrap_content"
+    app:cardCornerRadius="35dp"
     android:layout_gravity="center"
     app:cardBackgroundColor="@color/card_item_background"
-    app:cardPreventCornerOverlap="false"
-    app:cardUseCompatPadding="true"
+    app:cardPreventCornerOverlap="true"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
@@ -19,13 +18,13 @@
         >
 
         <android.support.v7.widget.CardView
-            app:cardBackgroundColor="@color/black"
+            app:cardBackgroundColor="@color/black_transparent"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
             android:layout_margin="5dp"
             android:layout_centerHorizontal="true"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
+            android:layout_width="65dp"
+            android:layout_height="65dp"
             android:scaleType="centerCrop"
             android:id="@+id/photo_wrapper"
             app:cardCornerRadius="30dp"
@@ -40,7 +39,7 @@
                 android:layout_alignStart="@+id/photo_wrapper"
                 android:layout_alignTop="@+id/photo_wrapper"
                 android:src="@drawable/person_blue"
-                tools:ignore="ContentDescription"/>
+                tools:ignore="ContentDescription" />
 
         </android.support.v7.widget.CardView>
 
@@ -61,7 +60,7 @@
         <ImageButton
             android:id="@+id/menu_popup"
             android:layout_width="40dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_alignBottom="@+id/photo_wrapper"
             android:layout_alignParentEnd="true"
             android:layout_alignTop="@+id/photo_wrapper"

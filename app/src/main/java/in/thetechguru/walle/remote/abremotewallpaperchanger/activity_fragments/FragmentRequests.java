@@ -27,6 +27,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -166,11 +168,31 @@ public class FragmentRequests extends Fragment implements SwipeRefreshLayout.OnR
                     break;
 
                 case R.id.action_block:
-                    block();
+                    new MaterialDialog.Builder(activity)
+                            .title(getString(R.string.block_warn, users.get(clickedPosition).display_name) )
+                            .positiveText(R.string.block)
+                            .negativeText(getString(R.string.cancel))
+                            .onPositive(new MaterialDialog.SingleButtonCallback() {
+                                @Override
+                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                    block();
+                                }
+                            })
+                            .show();
                     break;
 
                 case R.id.action_reject:
-                    rejectFriend();
+                    new MaterialDialog.Builder(activity)
+                            .title(getString(R.string.reject_friend_warn, users.get(clickedPosition).display_name) )
+                            .positiveText(R.string.reject)
+                            .negativeText(getString(R.string.cancel))
+                            .onPositive(new MaterialDialog.SingleButtonCallback() {
+                                @Override
+                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                    rejectFriend();
+                                }
+                            })
+                            .show();
                     break;
             }
             return false;
@@ -250,6 +272,7 @@ public class FragmentRequests extends Fragment implements SwipeRefreshLayout.OnR
         private void onClick(View view , int position){
             clickedPosition = position;
             switch (view.getId()){
+                case R.id.card_view:
                 case R.id.menu_popup:
                     PopupMenu popup=new PopupMenu(getContext(),view, Gravity.RIGHT);
                     MenuInflater inflater = popup.getMenuInflater();
@@ -269,6 +292,7 @@ public class FragmentRequests extends Fragment implements SwipeRefreshLayout.OnR
                 super(itemView);
                 ButterKnife.bind(this,itemView);
                 popup.setOnClickListener(this);
+                itemView.setOnClickListener(this);
             }
 
             @Override

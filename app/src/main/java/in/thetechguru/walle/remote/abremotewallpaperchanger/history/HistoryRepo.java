@@ -67,4 +67,12 @@ public class HistoryRepo {
         });
     }
 
+    public void nukeHistory(){
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                historyDAO.nukeTable();
+            }
+        });
+    }
 }

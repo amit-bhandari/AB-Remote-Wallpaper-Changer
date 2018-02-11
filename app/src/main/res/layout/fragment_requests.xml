@@ -30,6 +30,8 @@
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler_view"
         android:layout_width="match_parent"
+        android:paddingBottom="50dp"
+        android:clipToPadding="false"
         android:layout_height="match_parent"
         android:visibility="visible">
     </android.support.v7.widget.RecyclerView>

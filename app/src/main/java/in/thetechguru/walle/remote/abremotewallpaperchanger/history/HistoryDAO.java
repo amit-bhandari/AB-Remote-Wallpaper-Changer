@@ -1,6 +1,7 @@
 package in.thetechguru.walle.remote.abremotewallpaperchanger.history;
 
 import android.arch.persistence.room.Dao;
+import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
 import android.arch.persistence.room.Update;
@@ -24,4 +25,7 @@ public interface HistoryDAO {
 
     @Query("UPDATE historyitem SET status = :status WHERE historyId = :historyId")
     void updateStatus(String historyId, int status);
+
+    @Query("DELETE FROM historyitem")
+    void nukeTable();
 }

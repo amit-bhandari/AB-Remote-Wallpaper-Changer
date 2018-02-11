@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.StrictMode;
 import android.preference.PreferenceManager;
 
 import com.squareup.leakcanary.LeakCanary;
@@ -24,6 +25,8 @@ public class MyApp extends Application {
         instance = this;
         pref = PreferenceManager.getDefaultSharedPreferences(this);
 
+        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+        StrictMode.setVmPolicy(builder.build());
 
         if (LeakCanary.isInAnalyzerProcess(this)) {
             return;
