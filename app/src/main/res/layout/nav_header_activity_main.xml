@@ -48,10 +48,10 @@
         tools:ignore="HardcodedText" />
 
     <TextView
-        android:id="@+id/email_id"
-        android:layout_width="wrap_content"
+        android:id="@+id/global_count"
+        android:visibility="visible"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="android.studio@android.com"
-        tools:ignore="HardcodedText" />
+        android:text="@string/global_count" />
 
 </LinearLayout>

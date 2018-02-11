@@ -10,6 +10,11 @@
         android:title="@string/title_history" />
 
     <item
+        android:id="@+id/nav_how_does_it_work"
+        android:icon="@drawable/ic_info_outline_black_24dp"
+        android:title="@string/title_how_it_works" />
+
+    <item
         android:id="@+id/nav_share"
         android:icon="@drawable/ic_share_black_24dp"
         android:title="@string/title_share" />

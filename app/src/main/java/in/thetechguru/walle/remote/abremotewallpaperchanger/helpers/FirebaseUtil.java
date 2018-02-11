@@ -144,6 +144,10 @@ public class FirebaseUtil {
         return getTokenReference().child(user_name).child("pending");
     }
 
+    public static DatabaseReference getOverallChangeCountRef(){
+        return getDatabase().getReference().child("stats").child("wallpaper_change_requests");
+    }
+
     //get auth instance
     public static FirebaseAuth getAuth(){
         return FirebaseAuth.getInstance();

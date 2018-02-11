@@ -106,6 +106,7 @@ public class FragmentSignup  extends Fragment implements  GoogleApiClient.OnConn
     @Override
     public void onDestroy() {
         super.onDestroy();
+        google_sign_up_button.dispose();
         sign_up_button.dispose();
     }
 
@@ -225,6 +226,7 @@ public class FragmentSignup  extends Fragment implements  GoogleApiClient.OnConn
 
     @OnClick(R.id.sign_up_google)
     void googleSignIn() {
+        google_sign_up_button.startAnimation();
         Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
@@ -283,6 +285,7 @@ public class FragmentSignup  extends Fragment implements  GoogleApiClient.OnConn
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == RC_SIGN_IN) {
+            google_sign_up_button.revertAnimation();
             Log.d("FragmentSignup", "onActivityResult: singin result");
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
             handleSignInResult(result);

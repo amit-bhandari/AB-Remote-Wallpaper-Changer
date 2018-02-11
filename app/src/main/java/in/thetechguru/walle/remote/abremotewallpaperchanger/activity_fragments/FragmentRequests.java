@@ -44,6 +44,7 @@ import butterknife.ButterKnife;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.MyApp;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.R;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.helpers.FirebaseUtil;
+import in.thetechguru.walle.remote.abremotewallpaperchanger.helpers.UtillityFun;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.model.Constants;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.model.HttpsRequestPayload;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.model.User;
@@ -312,6 +313,18 @@ public class FragmentRequests extends Fragment implements SwipeRefreshLayout.OnR
                     @Override
                     public void run(){
 
+                        if(!UtillityFun.isConnectedToInternet()) {
+                            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    progressBar.setVisibility(View.INVISIBLE);
+                                    statusText.setVisibility(View.VISIBLE);
+                                    statusText.setText(R.string.error_no_network_swipe_down);
+                                    swipeRefreshLayout.setRefreshing(false);
+                                }
+                            });
+                            return;
+                        }
                         FirebaseUtil.getRequestsRef().addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {

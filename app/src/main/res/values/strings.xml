@@ -121,5 +121,24 @@
 
     <string name="reject_friend_warn">Reject friend %1$s ?</string>
     <string name="reject">Reject</string>
+    <string name="signout">Signing out</string>
+    <string name="logout_warn">Your wallpaper change logs will be cleared and your friends won\'t be able to change your wallpaper anymore. Do you want to logout?</string>
+    <string name="error_no_network_swipe_down">No network, swipe down to refresh</string>
+    <string name="retrying">Retrying…</string>
+    <string name="no_network_retry">No network, touch here to retry.</string>
+    <string name="title_how_it_works">How does it work?</string>
+    <string name="how_it_works_title">How does this work?</string>
+    <string name="how_it_works_content">3 simple steps to change wallpaper remotely. \n\n
+
+        1. Install AB Remote Wallpaper Changer in mobile of person you wish to change wallpaper for.\n\n
+        2. Sign up and generate unique username. (In your case, it is %1$s)\n\n
+        3. Add him/her by clicking on add button on right bottom side and wait for him/her to accept your request.\n\n
+
+        \n And that\'s it. Start changing wallpapers remotely.
+    </string>
+    <string name="how_it_works_pos">Got it</string>
+    <string name="pref_first_install">first_install</string>
+    <string name="global_count">Global wallpaper change count : %1$s</string>
+
 
 </resources>

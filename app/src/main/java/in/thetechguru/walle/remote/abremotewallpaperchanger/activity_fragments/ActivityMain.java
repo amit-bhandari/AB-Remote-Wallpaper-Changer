@@ -1,25 +1,18 @@
 package in.thetechguru.walle.remote.abremotewallpaperchanger.activity_fragments;
 
 import android.animation.Animator;
-import android.animation.ArgbEvaluator;
-import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
-import android.app.FragmentManager;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
@@ -33,8 +26,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewAnimationUtils;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -44,7 +35,6 @@ import android.widget.Toast;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.bumptech.glide.Glide;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
@@ -55,6 +45,8 @@ import butterknife.OnClick;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.MyApp;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.R;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.helpers.FirebaseUtil;
+import in.thetechguru.walle.remote.abremotewallpaperchanger.helpers.UtillityFun;
+import in.thetechguru.walle.remote.abremotewallpaperchanger.history.HistoryRepo;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.model.Constants;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.model.HttpsRequestPayload;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.helpers.ViewPagerAdapter;
@@ -73,8 +65,10 @@ public class ActivityMain extends AppCompatActivity
     @BindView(R.id.progress_bar) ProgressBar progressBar;
     @BindView(R.id.color_change_layout_view) View colorChangeView;
     @BindView(R.id.root_view_app_bar_main) View rootViewAppbarMain;
+    @BindView(R.id.status_text) TextView statusText;
 
     final static String INSTA_WEBSITE = "https://www.instagram.com/_amit_bhandari/?hl=en";
+
 
 
     private ViewPagerAdapter adapter;
@@ -91,40 +85,17 @@ public class ActivityMain extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setNotificationChannelForOreoPlus();
 
-        problem();
+        setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
+
+
         if(FirebaseUtil.getCurrentUser()==null){
             startActivity(new Intent(this, ActivityLoginSignup.class));
             finish();
             return;
         }
 
-        FirebaseUtil.getUsersReference().child(FirebaseUtil.getCurrentUser().getUid()).
-                addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        User user = dataSnapshot.getValue(User.class);
-                        if (user != null) {
-                            MyApp.getPref().edit().putString("username",user.username).apply();
-                        }
-                        MyApp.setUser(user);
-                        tabLayout.setVisibility(View.VISIBLE);
-                        viewPager.setVisibility(View.VISIBLE);
-                        progressBar.setVisibility(View.INVISIBLE);
-                        setupViewPager(viewPager);
-                        viewPager.setOffscreenPageLimit(4);
-                        tabLayout.setupWithViewPager(viewPager);
-                        setUpDrawerHeader();
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        Toast.makeText(ActivityMain.this, "Unknown Error, exiting application", Toast.LENGTH_SHORT).show();
-                        finish();
-                    }
-                });
-
-        setContentView(R.layout.activity_main);
-        ButterKnife.bind(this);
+        loadInitialScreen();
         setSupportActionBar(toolbar);
 
         final ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -135,22 +106,54 @@ public class ActivityMain extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         Glide.with(this)
-                .load("https://i2.wp.com/theprehabguys.com/wp-content/uploads/2016/12/black-background.jpg?ssl=1")
+                .load("http://thetechguru.in/wp-content/uploads/2018/02/black-background.jpg")
                 //.centerCrop()
                 //.crossFade(500)
                 .into((ImageView)findViewById(R.id.full_background));
 
-
         colorChange();
     }
 
-    void problem(){
+    private void loadInitialScreen() {
+        if(!UtillityFun.isConnectedToInternet()){
+            progressBar.setVisibility(View.INVISIBLE);
+            statusText.setVisibility(View.VISIBLE);
+            statusText.setText(R.string.no_network_retry);
+        }else {
+            statusText.setVisibility(View.INVISIBLE);
+            progressBar.setVisibility(View.VISIBLE);
+            FirebaseUtil.getUsersReference().child(FirebaseUtil.getCurrentUser().getUid()).
+                    addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            User user = dataSnapshot.getValue(User.class);
+                            if (user != null) {
+                                MyApp.getPref().edit().putString("username", user.username).apply();
+                            }
+                            MyApp.setUser(user);
 
-        int[] array = new int[]{1,5,2,6,2};
-        for(int i=1; i<array.length; i++){
-            System.out.println(array[i]-array[i-1]);
+                            //if first install, show info message
+                            if(MyApp.getPref().getBoolean(getString(R.string.pref_first_install), true)){
+                                MyApp.getPref().edit().putBoolean(getString(R.string.pref_first_install), false).apply();
+                                howItWorks();
+                            }
+
+                            tabLayout.setVisibility(View.VISIBLE);
+                            viewPager.setVisibility(View.VISIBLE);
+                            progressBar.setVisibility(View.INVISIBLE);
+                            setupViewPager(viewPager);
+                            viewPager.setOffscreenPageLimit(4);
+                            tabLayout.setupWithViewPager(viewPager);
+                            setUpDrawerHeader();
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+                            Toast.makeText(ActivityMain.this, "Unknown Error, exiting application", Toast.LENGTH_SHORT).show();
+                            finish();
+                        }
+                    });
         }
-
     }
 
     private void colorChange() {
@@ -226,7 +229,8 @@ public class ActivityMain extends AppCompatActivity
 
     private void setUpDrawerHeader(){
         TextView userName = navigationView.getHeaderView(0).findViewById(R.id.username);
-        TextView emailId = navigationView.getHeaderView(0).findViewById(R.id.email_id);
+        //TextView emailId = navigationView.getHeaderView(0).findViewById(R.id.email_id);
+        final TextView globalCount = navigationView.getHeaderView(0).findViewById(R.id.global_count);
         ImageView imageView = navigationView.getHeaderView(0).findViewById(R.id.imageView);
         Glide.with(this)
                 .load(MyApp.getUser().pic_url)
@@ -234,7 +238,26 @@ public class ActivityMain extends AppCompatActivity
                 .centerCrop()
                 .into(imageView);
         userName.setText(MyApp.getUser().display_name);
-        emailId.setText(FirebaseUtil.getCurrentUser().getEmail());
+        //emailId.setText(FirebaseUtil.getCurrentUser().getEmail());
+
+        FirebaseUtil.getOverallChangeCountRef().addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                try {
+                    if (dataSnapshot.getValue() != null) {
+                        globalCount.setVisibility(View.VISIBLE);
+                        globalCount.setText(getString(R.string.global_count
+                                , UtillityFun.format((Long)dataSnapshot.getValue())));
+                    }
+                } catch (Exception ignored) {
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
     private void setNotificationChannelForOreoPlus() {
@@ -333,11 +356,26 @@ public class ActivityMain extends AppCompatActivity
 
         switch (id){
             case R.id.nav_signout:
-                FirebaseUtil.getAuth().signOut();
-                //remove token from server
-                //FirebaseUtil.getNotificationTokenRef().child(MyApp.getUser().username).removeValue();
-                startActivity(new Intent(this, ActivityLoginSignup.class));
-                finish();
+                new MaterialDialog.Builder(this)
+                        .title(R.string.signout)
+                        .content(R.string.logout_warn)
+                        .positiveText(R.string.signout)
+                        .negativeText(getString(R.string.cancel))
+                        .onPositive(new MaterialDialog.SingleButtonCallback() {
+                            @Override
+                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                FirebaseUtil.getAuth().signOut();
+                                //remove token from server
+                                FirebaseUtil.getNotificationTokenRef().child(MyApp.getUser().username).removeValue();
+
+                                //remove history
+                                HistoryRepo.getInstance().nukeHistory();
+
+                                startActivity(new Intent(ActivityMain.this, ActivityLoginSignup.class));
+                                finish();
+                            }
+                        })
+                        .show();
                 break;
 
             case R.id.nav_history:
@@ -374,12 +412,37 @@ public class ActivityMain extends AppCompatActivity
                 openUrl(Uri.parse(INSTA_WEBSITE));
                 break;
 
+            case R.id.nav_how_does_it_work:
+                howItWorks();
+                break;
+
         }
 
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 
+    private void howItWorks(){
+        new MaterialDialog.Builder(this)
+                .title(R.string.how_it_works_title)
+                .content(R.string.how_it_works_content, MyApp.getUser().username)
+                .positiveText(R.string.how_it_works_pos)
+                .autoDismiss(false)
+                .cancelable(false)
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        dialog.dismiss();
+                    }
+                })
+                .show();
+    }
+
+    @OnClick(R.id.status_text)
+    void refreshMainAct(){
+        statusText.setText(R.string.retrying);
+        loadInitialScreen();
+    }
 
     private void openUrl(Uri parse) {
         try {

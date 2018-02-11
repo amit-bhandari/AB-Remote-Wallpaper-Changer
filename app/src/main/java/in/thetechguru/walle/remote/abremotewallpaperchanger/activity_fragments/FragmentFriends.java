@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
@@ -53,6 +52,7 @@ import butterknife.ButterKnife;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.MyApp;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.R;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.helpers.FirebaseUtil;
+import in.thetechguru.walle.remote.abremotewallpaperchanger.helpers.UtillityFun;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.history.HistoryItem;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.history.HistoryRepo;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.model.Constants;
@@ -182,7 +182,6 @@ public class FragmentFriends extends Fragment implements SwipeRefreshLayout.OnRe
 
         private void refreshList() {
             users.clear();
-
             recyclerView.setVisibility(View.INVISIBLE);
             progressBar.setVisibility(View.VISIBLE);
             statusText.setVisibility(View.INVISIBLE);
@@ -323,30 +322,50 @@ public class FragmentFriends extends Fragment implements SwipeRefreshLayout.OnRe
                 public void onFailure(@NonNull Exception exception) {
                     if(dialog!=null && dialog.isShowing()) dialog.dismiss();
                     Toast.makeText(MyApp.getContext(), "File upload failure", Toast.LENGTH_SHORT).show();
-                }
-            }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                    Uri downloadUrl = taskSnapshot.getDownloadUrl();
-                    if (downloadUrl != null) {
-                        Log.d("FragmentFriends", "onSuccess: " + downloadUrl.toString());
-                    }
-                    Toast.makeText(MyApp.getContext(), "Uploaded successfully", Toast.LENGTH_SHORT).show();
+                        }
+                    }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            Uri downloadUrl = taskSnapshot.getDownloadUrl();
+                            if (downloadUrl != null) {
+                                Log.d("FragmentFriends", "onSuccess: " + downloadUrl.toString());
+                            }
+                            Toast.makeText(MyApp.getContext(), "Uploaded successfully", Toast.LENGTH_SHORT).show();
 
-                    //add history item in
-                    HistoryItem item = new HistoryItem(randomId, "self", users.get(clickedPosition).username,System.currentTimeMillis(), mFileUri.toString());
-                    HistoryRepo.getInstance().putHistoryItem(item);
+                            //add history item in
+                            HistoryItem item = new HistoryItem(randomId, "self", users.get(clickedPosition).username,System.currentTimeMillis(), mFileUri.toString());
+                            HistoryRepo.getInstance().putHistoryItem(item);
 
-                    //notify firebase function for sending fcm to userName
-                    HttpsRequestPayload payload = new HttpsRequestPayload(users.get(clickedPosition).username
-                            , MyApp.getUser().username
-                            , HttpsRequestPayload.STATUS_CODE.CHANGE_WALLPAPER
-                            , randomId);
-                    new SendHttpsRequest(payload).start();
+                            //notify firebase function for sending fcm to userName
+                            HttpsRequestPayload payload = new HttpsRequestPayload(users.get(clickedPosition).username
+                                    , MyApp.getUser().username
+                                    , HttpsRequestPayload.STATUS_CODE.CHANGE_WALLPAPER
+                                    , randomId);
+                            new SendHttpsRequest(payload).start();
 
-                    if(dialog!=null && dialog.isShowing()) dialog.dismiss();
-                }
-            });
+                            //update overall count of wallpaper changes, just for show off.
+                            FirebaseUtil.getOverallChangeCountRef().addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                    try {
+                                        if (dataSnapshot.getValue() == null) {
+                                            FirebaseUtil.getOverallChangeCountRef().setValue(1L);
+                                        } else {
+                                            FirebaseUtil.getOverallChangeCountRef().setValue((Long) dataSnapshot.getValue() + 1L);
+                                        }
+                                    } catch (Exception ignored) {
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+
+                                }
+                            });
+
+                            if(dialog!=null && dialog.isShowing()) dialog.dismiss();
+                        }
+                    });
 
             if(dialog!=null)
                 dialog.show();
@@ -399,6 +418,19 @@ public class FragmentFriends extends Fragment implements SwipeRefreshLayout.OnRe
                 return new Runnable() {
                     @Override
                     public void run(){
+
+                        if(!UtillityFun.isConnectedToInternet()){
+                            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    progressBar.setVisibility(View.INVISIBLE);
+                                    statusText.setVisibility(View.VISIBLE);
+                                    statusText.setText(R.string.error_no_network_swipe_down);
+                                    swipeRefreshLayout.setRefreshing(false);
+                                }
+                            });
+                            return;
+                        }
 
                         FirebaseUtil.getConfirmedRef().addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
