@@ -71,7 +71,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this, Constants.CHANNEL_ID)
-                        .setSmallIcon(R.drawable.ic_person_black_24dp)
+                        .setSmallIcon(R.drawable.ic_launcher)
                         .setAutoCancel(true)
                         .setContentTitle("Friend request")
                         .setContentText(fromUser + " wants to connect with you!")
@@ -97,7 +97,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this, Constants.CHANNEL_ID)
-                        .setSmallIcon(R.drawable.ic_person_black_24dp)
+                        .setSmallIcon(R.drawable.ic_launcher)
                         .setContentTitle("Request Accepted")
                         .setAutoCancel(true)
                         .setContentText(fromUser + " is your friend now.")
@@ -123,7 +123,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this, Constants.CHANNEL_ID)
-                        .setSmallIcon(R.drawable.ic_person_black_24dp)
+                        .setSmallIcon(R.drawable.ic_wallpaper_black_24dp)
                         .setContentTitle("Wallpaper changed")
                         .setAutoCancel(true)
                         .setContentText("Successfully changed wallpaper for " + fromUser )

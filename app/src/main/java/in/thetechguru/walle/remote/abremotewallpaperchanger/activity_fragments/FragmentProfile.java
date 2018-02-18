@@ -191,6 +191,7 @@ public class FragmentProfile extends Fragment {
             Glide.with(this)
                     .load(MyApp.getUser().pic_url)
                     .placeholder(R.drawable.person_blue)
+                    .override(200,200)
                     .into(profile_photo);
         }
 

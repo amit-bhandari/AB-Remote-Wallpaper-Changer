@@ -153,7 +153,11 @@ public class FragmentRequests extends Fragment implements SwipeRefreshLayout.OnR
             holder.textView.setText( users.get(position).display_name);
 
             //@todo profile photo
-            Glide.with(MyApp.getContext()).load(users.get(position).pic_url).placeholder(R.drawable.person_blue).into(holder.imageView);
+            Glide.with(MyApp.getContext())
+                    .load(users.get(position).pic_url)
+                    .placeholder(R.drawable.person_blue)
+                    .override(200,200)
+                    .into(holder.imageView);
         }
 
         @Override

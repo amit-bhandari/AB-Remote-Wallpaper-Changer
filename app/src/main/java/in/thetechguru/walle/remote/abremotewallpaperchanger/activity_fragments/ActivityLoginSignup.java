@@ -54,11 +54,6 @@ public class ActivityLoginSignup extends AppCompatActivity {
 
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
-        Glide.with(this)
-                .load("http://thetechguru.in/wp-content/uploads/2018/02/black-background.jpg")
-                .centerCrop()
-                .into((ImageView)findViewById(R.id.full_background));
-
         setupViewPager(viewPager);
         tabLayout.setupWithViewPager(viewPager);
 

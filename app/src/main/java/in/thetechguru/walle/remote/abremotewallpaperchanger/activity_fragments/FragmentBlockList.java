@@ -104,7 +104,7 @@ public class FragmentBlockList extends Fragment implements SwipeRefreshLayout.On
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View layout = inflater.inflate(R.layout.fragment_friends, container, false);
+        View layout = inflater.inflate(R.layout.fragment_block_list, container, false);
         ButterKnife.bind(this, layout);
         swipeRefreshLayout.setOnRefreshListener(this);
 
@@ -156,7 +156,11 @@ public class FragmentBlockList extends Fragment implements SwipeRefreshLayout.On
             holder.textView.setText(users.get(position).display_name);
 
             //@todo profile photo
-            Glide.with(MyApp.getContext()).load(users.get(position).pic_url).placeholder(R.drawable.person_blue).into(holder.imageView);
+            Glide.with(MyApp.getContext())
+                    .load(users.get(position).pic_url)
+                    .placeholder(R.drawable.person_blue)
+                    .override(200,200)
+                    .into(holder.imageView);
         }
 
         @Override
@@ -282,7 +286,7 @@ public class FragmentBlockList extends Fragment implements SwipeRefreshLayout.On
                                                     progressBar.setVisibility(View.INVISIBLE);
                                                     swipeRefreshLayout.setRefreshing(false);
                                                     statusText.setVisibility(View.VISIBLE);
-                                                    statusText.setText(R.string.friend_list_fetch_unknown_error);
+                                                    statusText.setText(R.string.block_list_fetch_unknown_error);
                                                 }
                                             });
                                         }
@@ -292,7 +296,7 @@ public class FragmentBlockList extends Fragment implements SwipeRefreshLayout.On
                                             progressBar.setVisibility(View.INVISIBLE);
                                             swipeRefreshLayout.setRefreshing(false);
                                             statusText.setVisibility(View.VISIBLE);
-                                            statusText.setText(R.string.friend_list_fetch_unknown_error);
+                                            statusText.setText(R.string.block_list_fetch_unknown_error);
                                         }
                                     });
                                 }
@@ -304,7 +308,7 @@ public class FragmentBlockList extends Fragment implements SwipeRefreshLayout.On
                                 progressBar.setVisibility(View.INVISIBLE);
                                 statusText.setVisibility(View.VISIBLE);
                                 swipeRefreshLayout.setRefreshing(false);
-                                statusText.setText(R.string.friend_list_fetch_unknown_error);
+                                statusText.setText(R.string.block_list_fetch_unknown_error);
                             }
                         });
 

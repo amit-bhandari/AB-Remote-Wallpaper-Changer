@@ -70,11 +70,6 @@ public class ActivityHistory extends AppCompatActivity {
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
 
-        Glide.with(this)
-                .load("http://thetechguru.in/wp-content/uploads/2018/02/black-background.jpg")
-                //.centerCrop()
-                //.crossFade(500)
-                .into((ImageView)findViewById(R.id.full_background));
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new HistoryAdapter();

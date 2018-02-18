@@ -13,10 +13,11 @@
 
     <color name="drawer_header_layout_color">#515151</color>
 
-    <color name="reveal_color_1">#30700149</color>
-    <color name="reveal_color_2">#30016664</color>
+    <color name="reveal_color_1">#00a40207</color>
+    <color name="reveal_color_2">#a0010015</color>
 
     <color name="color_gray">#aeadad</color>
 
-    <color name="card_item_background">#15cbcbcb</color>
+    <color name="card_item_background">#50060606</color>
+    <color name="blocked_mode_active_color">#e60101</color>
 </resources>

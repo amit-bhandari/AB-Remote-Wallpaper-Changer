@@ -89,6 +89,11 @@ public class FirebaseUtil {
         return getDatabase().getReference().child("users").child(uId).child("username");
     }
 
+    //get particular username reference from firebase user id
+    public static DatabaseReference getBlockStatusRef(String uId){
+        return getDatabase().getReference().child("users").child(uId).child("block_status");
+    }
+
     //get particular email reference from firebase user id
     public static DatabaseReference getEmailRef(String uId){
         return getDatabase().getReference().child("users").child(uId).child("email");

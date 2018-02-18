@@ -11,6 +11,8 @@ public class User {
     public String pic_url;
     public String display_name;
 
+    public boolean block_status = false;
+
     public User(String display_name,String username, String pic_url){
         this.display_name = display_name;
         this.username = username;

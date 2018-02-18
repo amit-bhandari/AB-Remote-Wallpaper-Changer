@@ -104,3 +104,17 @@ public *;
 
 -keepattributes *Annotation*,SourceFile,LineNumberTable
 
+-keep class in.thetechguru.walle.remote.abremotewallpaperchanger.** {
+  public protected private *;
+}
+
+-keep class com.google.firebase.** { *; }
+-keep class com.google.firebase.** { *; }
+-keep class org.apache.** { *; }
+-keepnames class com.fasterxml.jackson.** { *; }
+-keepnames class javax.servlet.** { *; }
+-keepnames class org.ietf.jgss.** { *; }
+-dontwarn org.w3c.dom.**
+-dontwarn org.joda.time.**
+-dontwarn org.shaded.apache.**
+-dontwarn org.ietf.jgss.**

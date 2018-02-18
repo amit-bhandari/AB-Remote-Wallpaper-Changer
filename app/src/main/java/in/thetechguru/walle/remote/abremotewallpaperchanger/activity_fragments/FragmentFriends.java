@@ -199,9 +199,17 @@ public class FragmentFriends extends Fragment implements SwipeRefreshLayout.OnRe
         public void onBindViewHolder(MyViewHolder holder, int position) {
             //String mainText = users.get(position).display_name + " ("  + users.get(position).username +")";
             holder.textView.setText(users.get(position).display_name);
-
+            if(users.get(position).block_status){
+                holder.blockModeActive.setVisibility(View.VISIBLE);
+            }else {
+                holder.blockModeActive.setVisibility(View.INVISIBLE);
+            }
             //@todo profile photo
-            Glide.with(MyApp.getContext()).load(users.get(position).pic_url).placeholder(R.drawable.person_blue).into(holder.imageView);
+            Glide.with(MyApp.getContext())
+                    .load(users.get(position).pic_url)
+                    .override(200,200)
+                    .placeholder(R.drawable.person_blue)
+                    .into(holder.imageView);
         }
 
         @Override
@@ -216,6 +224,12 @@ public class FragmentFriends extends Fragment implements SwipeRefreshLayout.OnRe
             switch (menuItem.getItemId()) {
                 case R.id.action_change_wallpaper:
                     if(activity==null) return false;
+
+                    if(users.get(clickedPosition).block_status){
+                        Toast.makeText(activity, getString(R.string.error_user_in_blocked_mode, users.get(clickedPosition).display_name), Toast.LENGTH_SHORT).show();
+                        return false;
+                    }
+
                     Uri myUri = Uri.fromFile(new File(activity.getExternalCacheDir(), UUID.randomUUID().toString()));
                     CropImage.activity()
                             .setGuidelines(CropImageView.Guidelines.ON)
@@ -393,6 +407,7 @@ public class FragmentFriends extends Fragment implements SwipeRefreshLayout.OnRe
             @BindView(R.id.friend_item_display_picture)
             ImageView imageView;
             @BindView(R.id.menu_popup) ImageView popup;
+            @BindView(R.id.blockModeActive) TextView blockModeActive;
 
             MyViewHolder(View itemView) {
                 super(itemView);

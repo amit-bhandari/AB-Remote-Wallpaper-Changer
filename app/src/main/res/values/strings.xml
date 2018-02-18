@@ -41,6 +41,8 @@
     <string name="add_friend_content">Enter User Name of person you want to add as friend.</string>
     <string name="error_zero_friends">No Friends! Swipe down to refresh</string>
     <string name="friend_list_fetch_unknown_error">Error fetching Friend List, try again later.</string>
+    <string name="block_list_fetch_unknown_error">Error fetching Block List, try again later.</string>
+    <string name="request_list_fetch_unknown_error">Error fetching Request List, try again later.</string>
     <string name="error_no_friend_requests">No Friend Requests! Swipe down to refresh</string>
     <string name="requests_fetch_unknown_error">Error fetching Friend Requests, try again later.</string>
     <string name="friend_already_added_error">User is already friend</string>
@@ -139,6 +141,18 @@
     <string name="how_it_works_pos">Got it</string>
     <string name="pref_first_install">first_install</string>
     <string name="global_count">Global wallpaper change count : %1$s</string>
+    <string name="error_block_mode">Block mode active. \n\n In block mode, no one can change your wallpaper.  \n\n Touch the switch on top right side for disabling block mode.</string>
+    <string name="dialog_block_mode_title">Enable Block mode</string>
+    <string name="dialog_block_mode_content">In block mode, no one will be able to change your wallpaper. And you won\'t be able to change any one\'s wallpaper.</string>
+    <string name="dialog_block_mode_pos">Enable</string>
+    <string name="error_user_in_blocked_mode">%1$s is in blocked mode, cannot change wallpaper</string>
+    <string name="title_privacy_policy">Privacy Policy</string>
+    <string name="dialog_privacy_policy_content">AB Remote Wallpaper Changer do not keep any history of wallpaper changes on server. \n\n
+        Photos you set for other people are deleted as soon as wallpaper change operation become successful. If unsuccessful, photos are periodically cleaned from server. \n\n
+        AB Remote Wallpaper Changer do record logs of operations for debug and development purpose on server. \n\n
+        Reach out to amit.bhandari.c\@gmail.com for knowing more.
+    </string>
+    <string name="dialog_privacy_policy_pos">Got it</string>
 
 
 </resources>

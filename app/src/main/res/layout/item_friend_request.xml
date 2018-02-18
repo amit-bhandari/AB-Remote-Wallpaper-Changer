@@ -53,6 +53,7 @@
             android:layout_toStartOf="@+id/menu_popup"
             android:ellipsize="marquee"
             android:gravity="center"
+            android:textColor="@color/white"
             android:singleLine="true"
             android:text="Display Name"
             android:textSize="18sp"

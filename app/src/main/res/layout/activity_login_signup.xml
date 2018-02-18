@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerCrop"
-        android:src="@color/gray"
+        android:src="@drawable/back1"
         android:contentDescription="full_background"
         tools:ignore="HardcodedText" />
 

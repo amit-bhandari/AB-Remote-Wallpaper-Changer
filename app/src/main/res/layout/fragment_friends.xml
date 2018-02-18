@@ -21,6 +21,8 @@
             android:id="@+id/status_text"
             android:layout_margin="15dp"
             android:textSize="15sp"
+            android:textColor="@color/white"
+            android:gravity="center"
             android:visibility="visible"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"

@@ -15,6 +15,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
+import android.support.v7.widget.SwitchCompat;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -26,6 +27,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewAnimationUtils;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -66,6 +68,7 @@ public class ActivityMain extends AppCompatActivity
     @BindView(R.id.color_change_layout_view) View colorChangeView;
     @BindView(R.id.root_view_app_bar_main) View rootViewAppbarMain;
     @BindView(R.id.status_text) TextView statusText;
+    SwitchCompat blockSwitch;
 
     final static String INSTA_WEBSITE = "https://www.instagram.com/_amit_bhandari/?hl=en";
 
@@ -105,20 +108,18 @@ public class ActivityMain extends AppCompatActivity
 
         navigationView.setNavigationItemSelectedListener(this);
 
-        Glide.with(this)
+        /*e.with(this)
                 .load("http://thetechguru.in/wp-content/uploads/2018/02/black-background.jpg")
                 //.centerCrop()
                 //.crossFade(500)
-                .into((ImageView)findViewById(R.id.full_background));
+                .into((ImageView)findViewById(R.id.full_background));*/
 
-        colorChange();
+        //colorChange();
     }
 
     private void loadInitialScreen() {
         if(!UtillityFun.isConnectedToInternet()){
-            progressBar.setVisibility(View.INVISIBLE);
-            statusText.setVisibility(View.VISIBLE);
-            statusText.setText(R.string.no_network_retry);
+            setErrorScreen(R.string.no_network_retry);
         }else {
             statusText.setVisibility(View.INVISIBLE);
             progressBar.setVisibility(View.VISIBLE);
@@ -127,9 +128,11 @@ public class ActivityMain extends AppCompatActivity
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             User user = dataSnapshot.getValue(User.class);
-                            if (user != null) {
-                                MyApp.getPref().edit().putString("username", user.username).apply();
+                            if (user == null) {
+                                setErrorScreen(R.string.unknown_error);
+                                return;
                             }
+                            MyApp.getPref().edit().putString("username", user.username).apply();
                             MyApp.setUser(user);
 
                             //if first install, show info message
@@ -138,13 +141,17 @@ public class ActivityMain extends AppCompatActivity
                                 howItWorks();
                             }
 
-                            tabLayout.setVisibility(View.VISIBLE);
-                            viewPager.setVisibility(View.VISIBLE);
-                            progressBar.setVisibility(View.INVISIBLE);
-                            setupViewPager(viewPager);
-                            viewPager.setOffscreenPageLimit(4);
-                            tabLayout.setupWithViewPager(viewPager);
+                            if(blockSwitch!=null){
+                                blockSwitch.setEnabled(true);
+                            }
                             setUpDrawerHeader();
+
+                            if(user.block_status) {
+                                if(blockSwitch!=null) blockSwitch.setChecked(true);
+                                setErrorScreen(R.string.error_block_mode);
+                            }else {
+                                setMainScreeen();
+                            }
                         }
 
                         @Override
@@ -156,7 +163,26 @@ public class ActivityMain extends AppCompatActivity
         }
     }
 
-    private void colorChange() {
+    private void setErrorScreen(int string_resource) {
+        progressBar.setVisibility(View.INVISIBLE);
+        statusText.setVisibility(View.VISIBLE);
+        statusText.setText(string_resource);
+        tabLayout.setVisibility(View.INVISIBLE);
+        viewPager.setVisibility(View.INVISIBLE);
+        progressBar.setVisibility(View.INVISIBLE);
+    }
+
+    private void setMainScreeen() {
+        statusText.setVisibility(View.INVISIBLE);
+        tabLayout.setVisibility(View.VISIBLE);
+        viewPager.setVisibility(View.VISIBLE);
+        progressBar.setVisibility(View.INVISIBLE);
+        setupViewPager(viewPager);
+        viewPager.setOffscreenPageLimit(4);
+        tabLayout.setupWithViewPager(viewPager);
+    }
+
+    /*private void colorChange() {
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -167,55 +193,7 @@ public class ActivityMain extends AppCompatActivity
             public void onPageSelected(int position) {
                 Log.d("ActivityMain", "onPageSelected: " + position);
 
-                if(!isOpen) {
-                    int x = tabLayout.getRight() / 2;
-                    int y = tabLayout.getBottom() / 2;
-                    int endRadius = (int) Math.hypot(rootViewAppbarMain.getWidth(), rootViewAppbarMain.getHeight());
 
-                    Animator animator;
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        animator = ViewAnimationUtils.createCircularReveal(colorChangeView, x, y, 0, endRadius);
-                        animator.setDuration(300);
-                        colorChangeView.setVisibility(View.VISIBLE);
-                        animator.start();
-                    }
-                    isOpen = true;
-                }else {
-                    int x = tabLayout.getRight() / 2;
-                    int y = tabLayout.getBottom() / 2;
-
-                    int startRadius = Math.max(rootViewAppbarMain.getWidth(), rootViewAppbarMain.getHeight());
-                    int endRadius = 0;
-
-                    Animator anim;
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        anim = ViewAnimationUtils.createCircularReveal(colorChangeView, x, y, startRadius, endRadius);
-                        anim.setDuration(300);
-                        anim.addListener(new Animator.AnimatorListener() {
-                            @Override
-                            public void onAnimationStart(Animator animator) {
-
-                            }
-
-                            @Override
-                            public void onAnimationEnd(Animator animator) {
-                                colorChangeView.setVisibility(View.GONE);
-                            }
-
-                            @Override
-                            public void onAnimationCancel(Animator animator) {
-
-                            }
-
-                            @Override
-                            public void onAnimationRepeat(Animator animator) {
-
-                            }
-                        });
-                        anim.start();
-                    }
-                    isOpen = false;
-                }
             }
 
             @Override
@@ -223,6 +201,58 @@ public class ActivityMain extends AppCompatActivity
 
             }
         });
+    }*/
+
+    private void revealBlockView(boolean reveal){
+        if(reveal) {
+            int x = blockSwitch.getRight() ;
+            int y = blockSwitch.getBottom() ;
+            int endRadius = (int) Math.hypot(rootViewAppbarMain.getWidth(), rootViewAppbarMain.getHeight());
+
+            Animator animator;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                animator = ViewAnimationUtils.createCircularReveal(colorChangeView, x, y, 0, endRadius);
+                animator.setDuration(300);
+                colorChangeView.setVisibility(View.VISIBLE);
+                animator.start();
+            }
+            isOpen = true;
+        }else {
+            int x = blockSwitch.getRight() ;
+            int y = blockSwitch.getBottom() ;
+
+            int startRadius = Math.max(rootViewAppbarMain.getWidth(), rootViewAppbarMain.getHeight());
+            int endRadius = 0;
+
+            Animator anim;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                anim = ViewAnimationUtils.createCircularReveal(colorChangeView, x, y, startRadius, endRadius);
+                anim.setDuration(300);
+                anim.addListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animator) {
+                        colorChangeView.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animator) {
+
+                    }
+                });
+                anim.start();
+            }
+            isOpen = false;
+        }
     }
 
     boolean isOpen;
@@ -236,6 +266,7 @@ public class ActivityMain extends AppCompatActivity
                 .load(MyApp.getUser().pic_url)
                 .placeholder(R.drawable.person_blue)
                 .centerCrop()
+                .override(200,200)
                 .into(imageView);
         userName.setText(MyApp.getUser().display_name);
         //emailId.setText(FirebaseUtil.getCurrentUser().getEmail());
@@ -292,6 +323,44 @@ public class ActivityMain extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.activity_main, menu);
+        final MenuItem block_switch = menu.findItem(R.id.action_switch_block);
+        blockSwitch = block_switch.getActionView().findViewById(R.id.block_switch);
+        blockSwitch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(blockSwitch.isChecked()){
+                    //block user wallpaper changes
+                    new MaterialDialog.Builder(ActivityMain.this)
+                            .title(R.string.dialog_block_mode_title)
+                            .content(R.string.dialog_block_mode_content)
+                            .positiveText(R.string.dialog_block_mode_pos)
+                            .negativeText(getString(R.string.cancel))
+                            .onPositive(new MaterialDialog.SingleButtonCallback() {
+                                @Override
+                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                    FirebaseUtil.getBlockStatusRef(FirebaseUtil.getCurrentUser().getUid()).setValue(true);
+                                    setErrorScreen(R.string.error_block_mode);
+                                    statusText.setClickable(false);
+                                    revealBlockView(true);
+                                }
+                            })
+                            .onNegative(new MaterialDialog.SingleButtonCallback() {
+                                @Override
+                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                    blockSwitch.setChecked(false);
+                                }
+                            })
+                            .cancelable(false)
+                            .show();
+                }else {
+                    //unblock
+                    FirebaseUtil.getBlockStatusRef(FirebaseUtil.getCurrentUser().getUid()).setValue(false);
+                    statusText.setClickable(true);
+                    setMainScreeen();
+                    revealBlockView(false);
+                }
+            }
+        });
         return true;
     }
 
@@ -308,6 +377,10 @@ public class ActivityMain extends AppCompatActivity
                 //startActivity(new Intent(this, ActivityMain.class));
                 //finish();
                 Toast.makeText(this, "Nothing here yet", Toast.LENGTH_SHORT).show();
+                break;
+
+            case R.id.action_switch_block:
+
                 break;
         }
 
@@ -416,6 +489,14 @@ public class ActivityMain extends AppCompatActivity
                 howItWorks();
                 break;
 
+            case R.id.nav_privacy_policy:
+                new MaterialDialog.Builder(this)
+                        .title(R.string.title_privacy_policy)
+                        .content(R.string.dialog_privacy_policy_content)
+                        .positiveText(R.string.dialog_privacy_policy_pos)
+                        .show();
+                break;
+
         }
 
         drawer.closeDrawer(GravityCompat.START);
@@ -423,9 +504,11 @@ public class ActivityMain extends AppCompatActivity
     }
 
     private void howItWorks(){
+        String userName = "";
+        if(MyApp.getUser()!=null) userName = MyApp.getUser().username;
         new MaterialDialog.Builder(this)
                 .title(R.string.how_it_works_title)
-                .content(R.string.how_it_works_content, MyApp.getUser().username)
+                .content(R.string.how_it_works_content, userName)
                 .positiveText(R.string.how_it_works_pos)
                 .autoDismiss(false)
                 .cancelable(false)
