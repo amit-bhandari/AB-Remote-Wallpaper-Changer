@@ -107,7 +107,7 @@ public class FragmentBlockList extends Fragment implements SwipeRefreshLayout.On
         View layout = inflater.inflate(R.layout.fragment_block_list, container, false);
         ButterKnife.bind(this, layout);
         swipeRefreshLayout.setOnRefreshListener(this);
-
+        swipeRefreshLayout.setRefreshing(true);
         adapter = new FragmentBlockList.BlockedListAdapter(getActivity());
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(adapter);

@@ -26,6 +26,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
+import com.google.gson.Gson;
 
 import br.com.simplepass.loading_button_lib.customViews.CircularProgressButton;
 import butterknife.BindView;
@@ -35,6 +36,7 @@ import in.thetechguru.walle.remote.abremotewallpaperchanger.MyApp;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.R;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.helpers.FirebaseUtil;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.helpers.UtillityFun;
+import in.thetechguru.walle.remote.abremotewallpaperchanger.model.User;
 
 /**
  * Created by AB on 2017-12-24.
@@ -152,17 +154,17 @@ public class FragmentLogin extends Fragment {
                                 FirebaseUser firebaseUser = task.getResult().getUser();
                                 //get username
                                 if(firebaseUser!=null) {
-                                    DatabaseReference db = FirebaseUtil.getUsernameRef(firebaseUser.getUid());
+                                    DatabaseReference db = FirebaseUtil.getUsersReference().child(firebaseUser.getUid());
                                     db.addListenerForSingleValueEvent(new ValueEventListener() {
                                         @Override
                                         public void onDataChange(DataSnapshot dataSnapshot) {
-                                            String myUserName = dataSnapshot.getValue(String.class);
-                                            MyApp.getPref().edit().putString(getString(R.string.pref_username), myUserName).apply();
+                                            User user = dataSnapshot.getValue(User.class);
+                                            MyApp.getPref().edit().putString(getString(R.string.pref_user_obj), new Gson().toJson(user)).apply();
 
                                             //send token to server
                                             String token = MyApp.getPref().getString(getString(R.string.notification_token),"");
-                                            if(myUserName==null || myUserName.equals("") || token.equals("")) return;
-                                            FirebaseUtil.getNotificationTokenRef().child(myUserName).setValue(token);
+                                            if(user.username==null || user.username.equals("") || token.equals("")) return;
+                                            FirebaseUtil.getNotificationTokenRef().child(user.username).setValue(token);
 
                                             startActivity(new Intent(getActivity(), ActivityMain.class));
                                             getActivity().finish();

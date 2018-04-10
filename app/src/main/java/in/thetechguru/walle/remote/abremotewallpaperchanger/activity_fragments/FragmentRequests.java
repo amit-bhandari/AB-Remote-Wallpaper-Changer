@@ -103,7 +103,7 @@ public class FragmentRequests extends Fragment implements SwipeRefreshLayout.OnR
         View layout = inflater.inflate(R.layout.fragment_requests, container, false);
         ButterKnife.bind(this, layout);
         swipeRefreshLayout.setOnRefreshListener(this);
-
+        swipeRefreshLayout.setRefreshing(true);
         adapter = new FriendsRequestsAdapter(getActivity());
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(adapter);

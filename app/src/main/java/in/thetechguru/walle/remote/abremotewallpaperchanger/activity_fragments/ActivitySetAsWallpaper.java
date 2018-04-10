@@ -1,29 +1,24 @@
 package in.thetechguru.walle.remote.abremotewallpaperchanger.activity_fragments;
 
 import android.app.Activity;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
-import android.support.v4.content.LocalBroadcastManager;
+import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -39,8 +34,8 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.google.gson.Gson;
 import com.theartofdev.edmodo.cropper.CropImage;
-import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -55,96 +50,79 @@ import in.thetechguru.walle.remote.abremotewallpaperchanger.helpers.FirebaseUtil
 import in.thetechguru.walle.remote.abremotewallpaperchanger.helpers.UtillityFun;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.history.HistoryItem;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.history.HistoryRepo;
-import in.thetechguru.walle.remote.abremotewallpaperchanger.model.Constants;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.model.HttpsRequestPayload;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.model.User;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.tasks.SendHttpsRequest;
 
-import static android.app.Activity.RESULT_OK;
-
 /**
- * Created by abami on 1/17/2018.
+ * Created by abami on 19-Feb-18.
  */
 
-public class FragmentFriends extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
+public class ActivitySetAsWallpaper extends AppCompatActivity {
 
-    FriendListAdapter adapter;
-    @BindView(R.id.recycler_view)    RecyclerView recyclerView;
-    @BindView(R.id.progress_bar)    ProgressBar progressBar;
-    @BindView(R.id.status_text) TextView statusText;
-    @BindView(R.id.swipe_to_refresh) SwipeRefreshLayout swipeRefreshLayout;
     int clickedPosition;
+    FriendListAdapter adapter;
 
-    BroadcastReceiver refreshReceiver;
+    @BindView(R.id.toolbar) Toolbar toolbar;
+    @BindView(R.id.recycler_view) RecyclerView recyclerView;
+    @BindView(R.id.progress_bar) ProgressBar progressBar;
+    @BindView(R.id.status_text) TextView statusText;
+    @BindView(R.id.swipe_to_refresh)
+    SwipeRefreshLayout swipeRefreshLayout;
 
-    public FragmentFriends(){
-        refreshReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                if(adapter!=null) adapter.refreshList();
-                Log.d("FragmentFriends", "onReceive: ");
-            }
-        };
-    }
+    Uri receivedUri;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-    }
 
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        View layout = inflater.inflate(R.layout.fragment_friends, container, false);
-        ButterKnife.bind(this, layout);
+        if(getIntent().getData()==null){
+            Log.d("ActivitySetAsWallpaper", "onCreate: No extras");
+            finish();
+        }
 
-        swipeRefreshLayout.setOnRefreshListener(this);
-        swipeRefreshLayout.setRefreshing(true);
+        Log.d("ActivitySetAsWallpaper", "onCreate: URI" + getIntent().getData());
+        receivedUri = getIntent().getData();
 
-        adapter = new FriendListAdapter(getActivity());
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        setContentView(R.layout.activity_set_as_wallapaper);
+        ButterKnife.bind(this);
+        setSupportActionBar(toolbar);
+
+        // add back arrow to toolbar
+        if (getSupportActionBar() != null){
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
+        setTitle(getString(R.string.choose_friend));
+
+        if(MyApp.getUser()==null){
+            final String user_json = MyApp.getPref().getString(getString(R.string.pref_user_obj),"");
+            User user = new Gson().fromJson(user_json, User.class);
+            MyApp.setUser(user);
+        }
+
+        if(MyApp.getUser().block_status){
+            Toast.makeText(this, "You are in block mode in AB Wallpaper. Please turn it off by opening AB Wallpaper and clicking on switch on right top side.", Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
+
+        adapter = new FriendListAdapter(this);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
 
-        return layout;
+
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
-        if(getContext()!=null) {
-            LocalBroadcastManager.getInstance(getContext()).unregisterReceiver(refreshReceiver);
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
+                finish();
+                break;
         }
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        if(getContext()!=null) {
-            LocalBroadcastManager.getInstance(getContext()).registerReceiver(refreshReceiver, new IntentFilter(Constants.ACTIONS.REFRESH_FRIEND_LIST));
-        }
-    }
-
-    public boolean isFriend(String userName){
-        boolean isFriend = false;
-
-        if(adapter!=null && adapter.getList()!=null){
-            for(User user:adapter.getList()){
-                if(user.username.equals(userName)){
-                    isFriend = true;
-                    break;
-                }
-            }
-        }
-        return isFriend;
-    }
-
-    @Override
-    public void onRefresh() {
-        if(adapter!=null) {
-            swipeRefreshLayout.setRefreshing(true);
-            adapter.refreshList();
-        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -167,37 +145,33 @@ public class FragmentFriends extends Fragment implements SwipeRefreshLayout.OnRe
         }
     }
 
-    class FriendListAdapter extends RecyclerView.Adapter<FriendListAdapter.MyViewHolder>
-        implements PopupMenu.OnMenuItemClickListener{
+    class FriendListAdapter extends RecyclerView.Adapter<FriendListAdapter.MyViewHolder> {
 
         private List<User> users = new ArrayList<>();
-        GetFriendList getFriendListThread;
+        FriendListAdapter.GetFriendList getFriendListThread;
         private Activity activity;
 
         FriendListAdapter(Activity activity) {
             this.activity = activity;
             //handler = new Handler(Looper.getMainLooper());
-            getFriendListThread = new GetFriendList();
+            getFriendListThread = new FriendListAdapter.GetFriendList();
             refreshList();
         }
 
         private void refreshList() {
             users.clear();
-            recyclerView.setVisibility(View.INVISIBLE);
-            progressBar.setVisibility(View.VISIBLE);
-            statusText.setVisibility(View.INVISIBLE);
-            new GetFriendList().start();
+            new FriendListAdapter.GetFriendList().start();
         }
 
         @Override
-        public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        public FriendListAdapter.MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View view = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.item_added_friend, parent, false);
-            return new MyViewHolder(view);
+            return new FriendListAdapter.MyViewHolder(view);
         }
 
         @Override
-        public void onBindViewHolder(MyViewHolder holder, int position) {
+        public void onBindViewHolder(FriendListAdapter.MyViewHolder holder, int position) {
             //String mainText = users.get(position).display_name + " ("  + users.get(position).username +")";
             holder.textView.setText(users.get(position).display_name);
             if(users.get(position).block_status){
@@ -219,81 +193,6 @@ public class FragmentFriends extends Fragment implements SwipeRefreshLayout.OnRe
         }
 
         private List<User> getList (){return users;}
-
-        @Override
-        public boolean onMenuItemClick(MenuItem menuItem) {
-            switch (menuItem.getItemId()) {
-                case R.id.action_change_wallpaper:
-                    if(activity==null) return false;
-
-                    if(users.get(clickedPosition).block_status){
-                        Toast.makeText(activity, getString(R.string.error_user_in_blocked_mode, users.get(clickedPosition).display_name), Toast.LENGTH_SHORT).show();
-                        return false;
-                    }
-
-                    Uri myUri = Uri.fromFile(new File(activity.getExternalCacheDir(), UUID.randomUUID().toString()));
-                    CropImage.activity()
-                            .setGuidelines(CropImageView.Guidelines.ON)
-                            .setOutputUri(myUri)
-                            //.setAspectRatio(1,1)
-                            //.setOutputCompressQuality(5)
-                            .start(activity);
-                    break;
-
-                case R.id.action_block_user:
-                    new MaterialDialog.Builder(activity)
-                            .title(getString(R.string.block_warn, users.get(clickedPosition).display_name) )
-                            .positiveText(R.string.block)
-                            .negativeText(getString(R.string.cancel))
-                            .onPositive(new MaterialDialog.SingleButtonCallback() {
-                                @Override
-                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                    Toast.makeText(MyApp.getContext(), getString(R.string.blocked_toast, users.get(clickedPosition).display_name), Toast.LENGTH_SHORT).show();
-
-                                    //add token to blocked users list
-                                    FirebaseUtil.getBlockedRef().child(users.get(clickedPosition).username).setValue(true);
-
-                                    //remove from confirmed in both user directories i.e
-                                    //from self --> blocked and user_getting_blocked --> blocked
-                                    FirebaseUtil.getConfirmedRef(users.get(clickedPosition).username)
-                                            .child(MyApp.getUser().username).removeValue();
-                                    FirebaseUtil.getConfirmedRef().child(users.get(clickedPosition).username).removeValue();
-
-                                    users.remove(clickedPosition);
-                                    notifyItemRemoved(clickedPosition);
-                                }
-                            })
-                            .show();
-                    break;
-
-                case R.id.action_remove_friend:
-                    new MaterialDialog.Builder(activity)
-                            .title(getString(R.string.remove_friend_warn, users.get(clickedPosition).display_name) )
-                            .positiveText(R.string.remove)
-                            .negativeText(getString(R.string.cancel))
-                            .onPositive(new MaterialDialog.SingleButtonCallback() {
-                                @Override
-                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-
-                                    String userName = users.get(clickedPosition).username;
-
-                                    Toast.makeText(MyApp.getContext(), getString(R.string.friend_removed_toast, users.get(clickedPosition).display_name), Toast.LENGTH_SHORT).show();
-
-                                    //remove from pending and requests sections
-                                    FirebaseUtil.getConfirmedRef()
-                                            .child(userName).removeValue();
-                                    FirebaseUtil.getConfirmedRef(userName)
-                                            .child(MyApp.getUser().username).removeValue();
-
-                                    users.remove(clickedPosition);
-                                    notifyItemRemoved(clickedPosition);
-                                }
-                            })
-                            .show();
-                    break;
-            }
-            return true;
-        }
 
         private void uploadPhoto(final Uri mFileUri){
 
@@ -337,68 +236,54 @@ public class FragmentFriends extends Fragment implements SwipeRefreshLayout.OnRe
                 public void onFailure(@NonNull Exception exception) {
                     if(dialog!=null && dialog.isShowing()) dialog.dismiss();
                     Toast.makeText(MyApp.getContext(), "File upload failure", Toast.LENGTH_SHORT).show();
-                        }
-                    }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                }
+            }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    Uri downloadUrl = taskSnapshot.getDownloadUrl();
+                    if (downloadUrl != null) {
+                        Log.d("FragmentFriends", "onSuccess: " + downloadUrl.toString());
+                    }
+                    Toast.makeText(MyApp.getContext(), "Uploaded successfully", Toast.LENGTH_SHORT).show();
+
+                    //add history item in
+                    HistoryItem item = new HistoryItem(randomId, "self", users.get(clickedPosition).username,System.currentTimeMillis(), mFileUri.toString());
+                    HistoryRepo.getInstance().putHistoryItem(item);
+
+                    //notify firebase function for sending fcm to userName
+                    HttpsRequestPayload payload = new HttpsRequestPayload(users.get(clickedPosition).username
+                            , MyApp.getUser().username
+                            , HttpsRequestPayload.STATUS_CODE.CHANGE_WALLPAPER
+                            , randomId);
+                    new SendHttpsRequest(payload).start();
+
+                    //update overall count of wallpaper changes, just for show off.
+                    FirebaseUtil.getOverallChangeCountRef().addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            Uri downloadUrl = taskSnapshot.getDownloadUrl();
-                            if (downloadUrl != null) {
-                                Log.d("FragmentFriends", "onSuccess: " + downloadUrl.toString());
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            try {
+                                if (dataSnapshot.getValue() == null) {
+                                    FirebaseUtil.getOverallChangeCountRef().setValue(1L);
+                                } else {
+                                    FirebaseUtil.getOverallChangeCountRef().setValue((Long) dataSnapshot.getValue() + 1L);
+                                }
+                            } catch (Exception ignored) {
                             }
-                            Toast.makeText(MyApp.getContext(), "Uploaded successfully", Toast.LENGTH_SHORT).show();
+                        }
 
-                            //add history item in
-                            HistoryItem item = new HistoryItem(randomId, "self", users.get(clickedPosition).username,System.currentTimeMillis(), mFileUri.toString());
-                            HistoryRepo.getInstance().putHistoryItem(item);
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
 
-                            //notify firebase function for sending fcm to userName
-                            HttpsRequestPayload payload = new HttpsRequestPayload(users.get(clickedPosition).username
-                                    , MyApp.getUser().username
-                                    , HttpsRequestPayload.STATUS_CODE.CHANGE_WALLPAPER
-                                    , randomId);
-                            new SendHttpsRequest(payload).start();
-
-                            //update overall count of wallpaper changes, just for show off.
-                            FirebaseUtil.getOverallChangeCountRef().addListenerForSingleValueEvent(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(DataSnapshot dataSnapshot) {
-                                    try {
-                                        if (dataSnapshot.getValue() == null) {
-                                            FirebaseUtil.getOverallChangeCountRef().setValue(1L);
-                                        } else {
-                                            FirebaseUtil.getOverallChangeCountRef().setValue((Long) dataSnapshot.getValue() + 1L);
-                                        }
-                                    } catch (Exception ignored) {
-                                    }
-                                }
-
-                                @Override
-                                public void onCancelled(DatabaseError databaseError) {
-
-                                }
-                            });
-
-                            if(dialog!=null && dialog.isShowing()) dialog.dismiss();
                         }
                     });
 
+                    if(dialog!=null && dialog.isShowing()) dialog.dismiss();
+                    finish();
+                }
+            });
+
             if(dialog!=null)
                 dialog.show();
-        }
-
-        void onClick(View view, int position) {
-            clickedPosition = position;
-            switch (view.getId()){
-
-                case R.id.card_view:
-                case R.id.menu_popup:
-                    PopupMenu popup=new PopupMenu(getContext(),view, Gravity.END);
-                    MenuInflater inflater = popup.getMenuInflater();
-                    inflater.inflate(R.menu.menu_friend_item, popup.getMenu());
-                    popup.show();
-                    popup.setOnMenuItemClickListener(this);
-                    break;
-            }
         }
 
         class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
@@ -414,12 +299,15 @@ public class FragmentFriends extends Fragment implements SwipeRefreshLayout.OnRe
                 super(itemView);
                 ButterKnife.bind(this,itemView);
                 itemView.setOnClickListener(this);
-                popup.setOnClickListener(this);
+                popup.setVisibility(View.INVISIBLE);
             }
 
             @Override
             public void onClick(View view) {
-                FriendListAdapter.this.onClick(view, getLayoutPosition());
+                //FriendListAdapter.this.onClick(view, getLayoutPosition());
+                clickedPosition = getLayoutPosition();
+                Uri myUri = Uri.fromFile(new File(activity.getExternalCacheDir(), UUID.randomUUID().toString()));
+                CropImage.activity(receivedUri).setOutputUri(myUri).start(ActivitySetAsWallpaper.this);
             }
         }
 

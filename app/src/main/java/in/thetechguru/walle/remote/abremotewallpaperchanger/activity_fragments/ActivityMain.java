@@ -27,7 +27,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewAnimationUtils;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -40,6 +39,7 @@ import com.bumptech.glide.Glide;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
+import com.google.gson.Gson;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -123,47 +123,52 @@ public class ActivityMain extends AppCompatActivity
         }else {
             statusText.setVisibility(View.INVISIBLE);
             progressBar.setVisibility(View.VISIBLE);
-            FirebaseUtil.getUsersReference().child(FirebaseUtil.getCurrentUser().getUid()).
-                    addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            User user = dataSnapshot.getValue(User.class);
-                            if (user == null) {
-                                setErrorScreen(R.string.unknown_error);
-                                return;
-                            }
-                            MyApp.getPref().edit().putString("username", user.username).apply();
-                            MyApp.setUser(user);
 
-                            //if first install, show info message
-                            if(MyApp.getPref().getBoolean(getString(R.string.pref_first_install), true)){
-                                MyApp.getPref().edit().putBoolean(getString(R.string.pref_first_install), false).apply();
-                                howItWorks();
+            final String user_json = MyApp.getPref().getString(getString(R.string.pref_user_obj),"");
+            if(user_json.equals("")){
+                FirebaseUtil.getUsersReference().child(FirebaseUtil.getCurrentUser().getUid()).
+                        addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                User user = dataSnapshot.getValue(User.class);
+                                if (user == null) {
+                                    setErrorScreen(R.string.unknown_error);
+                                    return;
+                                }
+                                MyApp.getPref().edit().putString(getString(R.string.pref_user_obj), new Gson().toJson(user)).apply();
+                                MyApp.setUser(user);
+
+                                if(user.block_status) {
+                                    if(blockSwitch!=null) blockSwitch.setChecked(true);
+                                    setErrorScreen(R.string.error_block_mode);
+                                }else {
+                                    setMainScreen();
+                                }
+                                setUpDrawerHeader();
                             }
 
-                            if(blockSwitch!=null){
-                                blockSwitch.setEnabled(true);
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+                                Toast.makeText(ActivityMain.this, "Unknown Error, exiting application", Toast.LENGTH_SHORT).show();
+                                finish();
                             }
-                            setUpDrawerHeader();
-
-                            if(user.block_status) {
-                                if(blockSwitch!=null) blockSwitch.setChecked(true);
-                                setErrorScreen(R.string.error_block_mode);
-                            }else {
-                                setMainScreeen();
-                            }
-                        }
-
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-                            Toast.makeText(ActivityMain.this, "Unknown Error, exiting application", Toast.LENGTH_SHORT).show();
-                            finish();
-                        }
-                    });
+                        });
+            }else {
+                User user = new Gson().fromJson(user_json, User.class);
+                MyApp.setUser(user);
+                if(user.block_status) {
+                    if(blockSwitch!=null) blockSwitch.setChecked(true);
+                    setErrorScreen(R.string.error_block_mode);
+                }else {
+                    setMainScreen();
+                }
+                setUpDrawerHeader();
+            }
         }
     }
 
     private void setErrorScreen(int string_resource) {
+        fab.setVisibility(View.INVISIBLE);
         progressBar.setVisibility(View.INVISIBLE);
         statusText.setVisibility(View.VISIBLE);
         statusText.setText(string_resource);
@@ -172,7 +177,14 @@ public class ActivityMain extends AppCompatActivity
         progressBar.setVisibility(View.INVISIBLE);
     }
 
-    private void setMainScreeen() {
+    private void setMainScreen() {
+        //if first install, show info message
+        if(MyApp.getPref().getBoolean(getString(R.string.pref_first_install), true)){
+            MyApp.getPref().edit().putBoolean(getString(R.string.pref_first_install), false).apply();
+            howItWorks();
+        }
+
+        fab.setVisibility(View.VISIBLE);
         statusText.setVisibility(View.INVISIBLE);
         tabLayout.setVisibility(View.VISIBLE);
         viewPager.setVisibility(View.VISIBLE);
@@ -325,6 +337,12 @@ public class ActivityMain extends AppCompatActivity
         getMenuInflater().inflate(R.menu.activity_main, menu);
         final MenuItem block_switch = menu.findItem(R.id.action_switch_block);
         blockSwitch = block_switch.getActionView().findViewById(R.id.block_switch);
+        if(blockSwitch!=null){
+            blockSwitch.setEnabled(true);
+            if(MyApp.getUser()!=null){
+                blockSwitch.setChecked(MyApp.getUser().block_status);
+            }
+        }
         blockSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -339,6 +357,11 @@ public class ActivityMain extends AppCompatActivity
                                 @Override
                                 public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
                                     FirebaseUtil.getBlockStatusRef(FirebaseUtil.getCurrentUser().getUid()).setValue(true);
+                                    final String user_json = MyApp.getPref().getString(getString(R.string.pref_user_obj),"");
+                                    User user = new Gson().fromJson(user_json, User.class);
+                                    user.block_status = true;
+                                    MyApp.getPref().edit().putString(getString(R.string.pref_user_obj),new Gson().toJson(user)).apply();
+                                    MyApp.setUser(user);
                                     setErrorScreen(R.string.error_block_mode);
                                     statusText.setClickable(false);
                                     revealBlockView(true);
@@ -355,8 +378,13 @@ public class ActivityMain extends AppCompatActivity
                 }else {
                     //unblock
                     FirebaseUtil.getBlockStatusRef(FirebaseUtil.getCurrentUser().getUid()).setValue(false);
+                    final String user_json = MyApp.getPref().getString(getString(R.string.pref_user_obj),"");
+                    User user = new Gson().fromJson(user_json, User.class);
+                    user.block_status = false;
+                    MyApp.setUser(user);
+                    MyApp.getPref().edit().putString(getString(R.string.pref_user_obj),new Gson().toJson(user)).apply();
                     statusText.setClickable(true);
-                    setMainScreeen();
+                    setMainScreen();
                     revealBlockView(false);
                 }
             }

@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,9 +22,13 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.google.gson.Gson;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
@@ -31,12 +36,14 @@ import java.util.UUID;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.MyApp;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.R;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.helpers.FirebaseUtil;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.history.HistoryItem;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.history.HistoryRepo;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.model.HttpsRequestPayload;
+import in.thetechguru.walle.remote.abremotewallpaperchanger.model.User;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.tasks.SendHttpsRequest;
 
 import static android.app.Activity.RESULT_OK;
@@ -58,6 +65,9 @@ public class FragmentProfile extends Fragment {
 
     @BindView(R.id.image_view_profile)
     ImageView profile_photo;
+
+    @BindView(R.id.progress_bar)
+    ProgressBar progressBar;
 
     public FragmentProfile(){}
 
@@ -87,6 +97,7 @@ public class FragmentProfile extends Fragment {
         final UploadTask uploadTask = uploadedFile.putFile(mFileUri);
 
         Toast.makeText(MyApp.getContext(), "Updating profile photo...", Toast.LENGTH_SHORT).show();
+        progressBar.setVisibility(View.VISIBLE);
 
         uploadTask
                 .addOnFailureListener(new OnFailureListener() {
@@ -105,8 +116,14 @@ public class FragmentProfile extends Fragment {
                                     .addOnCompleteListener(new OnCompleteListener<Void>() {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
-                                            if(task.getException()==null) {
+                                            final String user_json = MyApp.getPref().getString(getString(R.string.pref_user_obj),"");
+                                            if(task.getException()==null && !user_json.equals("")) {
+                                                User user = new Gson().fromJson(user_json, User.class);
+                                                user.pic_url = downloadUrl.toString();
+                                                MyApp.setUser(user);
+                                                MyApp.getPref().edit().putString(getString(R.string.pref_user_obj),new Gson().toJson(user)).apply();
                                                 Toast.makeText(MyApp.getContext(), "Profile photo changed successfully", Toast.LENGTH_SHORT).show();
+                                                progressBar.setVisibility(View.INVISIBLE);
                                                 if(getActivity()!=null) {
                                                     Glide.with(getActivity())
                                                             .load(downloadUrl)
@@ -114,6 +131,7 @@ public class FragmentProfile extends Fragment {
                                                             .into(profile_photo);
                                                 }
                                             }else {
+                                                progressBar.setVisibility(View.INVISIBLE);
                                                 Toast.makeText(MyApp.getContext(), "Error changing profile photo", Toast.LENGTH_SHORT).show();
                                             }
                                         }
@@ -135,55 +153,6 @@ public class FragmentProfile extends Fragment {
         View layout = inflater.inflate(R.layout.fragment_profile, container, false);
         ButterKnife.bind(this, layout);
 
-        profile_photo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(getActivity()==null) return;
-                CropImage.activity()
-                        .setGuidelines(CropImageView.Guidelines.ON)
-                        .setAspectRatio(1,1)
-                        .setOutputCompressQuality(5)
-                        .start(getActivity());
-            }
-        });
-
-        display_name.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                if(getActivity()==null) return;
-
-                new MaterialDialog.Builder(getActivity())
-                        .title("Change Display Name")
-                        .inputType(InputType.TYPE_CLASS_TEXT)
-                        .input("", MyApp.getUser().display_name, new MaterialDialog.InputCallback() {
-                            @Override
-                            public void onInput(@NonNull MaterialDialog dialog, final CharSequence input) {
-
-                                if(input.toString().equals("") || input.toString().length()<6){
-                                    Toast.makeText(MyApp.getContext(), R.string.error_invalid_display_name, Toast.LENGTH_SHORT).show();
-                                    return;
-                                }
-
-                                // Do something
-                                FirebaseUtil.getDisplayNameRef(FirebaseUtil.getCurrentUser().getUid())
-                                        .setValue(input.toString())
-                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<Void> task) {
-                                                if(task.getException()==null) {
-                                                    display_name.setText(input.toString());
-                                                    Toast.makeText(getContext(), "Display Name changed successfully", Toast.LENGTH_SHORT).show();
-                                                }else {
-                                                    Toast.makeText(getContext(), "Error changing display name", Toast.LENGTH_SHORT).show();
-                                                }
-                                            }
-                                        });
-                            }
-                        }).show();
-            }
-        });
-
         if(FirebaseUtil.getCurrentUser()!=null && MyApp.getUser().username!=null){
             display_name.setText(MyApp.getUser().display_name);
             username.setText( MyApp.getUser().username);
@@ -196,5 +165,54 @@ public class FragmentProfile extends Fragment {
         }
 
         return layout;
+    }
+
+    @OnClick(R.id.display_name)
+    void onDisplayNameClick(){
+        if(getActivity()==null) return;
+
+        new MaterialDialog.Builder(getActivity())
+                .title("Change Display Name")
+                .inputType(InputType.TYPE_CLASS_TEXT)
+                .input("", MyApp.getUser().display_name, new MaterialDialog.InputCallback() {
+                    @Override
+                    public void onInput(@NonNull MaterialDialog dialog, final CharSequence input) {
+
+                        if(input.toString().equals("") || input.toString().length()<6){
+                            Toast.makeText(MyApp.getContext(), R.string.error_invalid_display_name, Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        // Do something
+                        FirebaseUtil.getDisplayNameRef(FirebaseUtil.getCurrentUser().getUid())
+                                .setValue(input.toString())
+                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        final String user_json = MyApp.getPref().getString(getString(R.string.pref_user_obj),"");
+                                        if(task.getException()==null && !user_json.equals("") ) {
+                                            User user = new Gson().fromJson(user_json, User.class);
+                                            user.display_name = input.toString();
+                                            display_name.setText(input.toString());
+                                            MyApp.setUser(user);
+                                            MyApp.getPref().edit().putString(getString(R.string.pref_user_obj),new Gson().toJson(user)).apply();
+                                            Toast.makeText(getContext(), "Display Name changed successfully", Toast.LENGTH_SHORT).show();
+                                        }else {
+                                            Toast.makeText(getContext(), "Error changing display name", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                });
+                    }
+                }).show();
+    }
+
+    @OnClick(R.id.image_view_profile)
+    void onClickProfilePhoto(){
+        if(getActivity()==null) return;
+        CropImage.activity()
+                .setGuidelines(CropImageView.Guidelines.ON)
+                .setAspectRatio(1,1)
+                .setOutputCompressQuality(5)
+                .start(getActivity());
     }
 }

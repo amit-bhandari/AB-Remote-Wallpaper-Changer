@@ -12,14 +12,17 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.crash.FirebaseCrash;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
+import com.google.gson.Gson;
 
 import java.io.File;
 import java.io.IOException;
 
 import in.thetechguru.walle.remote.abremotewallpaperchanger.MyApp;
+import in.thetechguru.walle.remote.abremotewallpaperchanger.R;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.helpers.FirebaseUtil;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.history.HistoryItem;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.history.HistoryRepo;
@@ -60,6 +63,7 @@ public class SetWallpaper extends Thread {
                     Log.d("SetWallpaper", "save path: " + localFile.getAbsolutePath());
                 } catch (Exception e) {
                     e.printStackTrace();
+                    FirebaseCrash.report(e);
                     return;
                 }
 
@@ -76,13 +80,14 @@ public class SetWallpaper extends Thread {
                     @Override
                     public void onFailure(@NonNull Exception exception) {
                         // Handle any errors
+                        FirebaseCrash.report(exception);
                         Log.d("SetWallpaper", "onFailure: Error downloading photo from firebase storage : " + exception.getMessage());
                     }
                 }).addOnProgressListener(new OnProgressListener<FileDownloadTask.TaskSnapshot>() {
                     @Override
                     public void onProgress(FileDownloadTask.TaskSnapshot taskSnapshot) {
                         double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
-                        System.out.println("Upload is " + progress + "% done");
+                        System.out.println("Download is " + progress + "% done");
                     }
                 }).addOnCompleteListener(new OnCompleteListener<FileDownloadTask.TaskSnapshot>() {
                     @Override
@@ -101,11 +106,9 @@ public class SetWallpaper extends Thread {
                 if(myWallpaperManager!=null){
                     try {
                         myWallpaperManager.setBitmap(photo);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        return;
                     } catch (Exception e){
                         e.printStackTrace();
+                        FirebaseCrash.report(e);
                         return;
                     }
 
@@ -113,17 +116,16 @@ public class SetWallpaper extends Thread {
                     HistoryItem item = new HistoryItem(id, fromUser, "self",System.currentTimeMillis(), Uri.fromFile(localFile).toString());
                     HistoryRepo.getInstance().putHistoryItem(item);
 
-                    //@todo change this implementaion
                     User user = MyApp.getUser();
-                    String username;
                     if(user!=null){
-                        username = user.username;
-                    }else {
-                        username = MyApp.getPref().getString("username","");
+                        user = new Gson().fromJson(MyApp.getPref().getString(MyApp.getContext().getString(R.string.pref_user_obj),""), User.class);
                     }
+
+                    if(user==null) return;
+
                     //notify firebase function for sending fcm to userName
                     HttpsRequestPayload payload = new HttpsRequestPayload(fromUser
-                            , username
+                            , user.username
                             , HttpsRequestPayload.STATUS_CODE.WALLPAPER_CHANGED
                             , id);
                     new SendHttpsRequest(payload).start();

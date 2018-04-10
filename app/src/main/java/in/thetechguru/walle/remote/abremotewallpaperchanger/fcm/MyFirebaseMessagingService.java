@@ -7,17 +7,21 @@ import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import com.google.firebase.crash.FirebaseCrash;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
+import com.google.gson.Gson;
 
 import java.util.Random;
 
+import in.thetechguru.walle.remote.abremotewallpaperchanger.MyApp;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.R;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.activity_fragments.ActivityMain;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.history.HistoryItem;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.history.HistoryRepo;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.model.Constants;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.model.HttpsRequestPayload;
+import in.thetechguru.walle.remote.abremotewallpaperchanger.model.User;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.tasks.SetWallpaper;
 
 /**
@@ -50,6 +54,11 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     break;
 
                 case HttpsRequestPayload.STATUS_CODE.CHANGE_WALLPAPER:
+                    User user = new Gson().fromJson(MyApp.getPref().getString(getString(R.string.pref_user_obj),""),User.class);
+                    if(user!=null && user.block_status) {
+                        FirebaseCrash.log("Wallpaper request came even in bloked mode for user : " + user.username);
+                        return;
+                    }
                     new SetWallpaper(wallpaper_url, fromUser).start();
                     break;
 
@@ -71,10 +80,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this, Constants.CHANNEL_ID)
-                        .setSmallIcon(R.drawable.ic_launcher)
+                        .setSmallIcon(R.drawable.ic_person_add_black_24dp)
                         .setAutoCancel(true)
                         .setContentTitle("Friend request")
-                        .setContentText(fromUser + " wants to connect with you!")
+                        .setContentText(fromUser + " wants to connect with you! Once connected, both parties can change each others wallpaper remotely.")
                         .setContentIntent(pendingIntent);
 
         int mNotificationId = 1;
@@ -97,10 +106,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this, Constants.CHANNEL_ID)
-                        .setSmallIcon(R.drawable.ic_launcher)
+                        .setSmallIcon(R.drawable.ic_person_black_24dp)
                         .setContentTitle("Request Accepted")
                         .setAutoCancel(true)
-                        .setContentText(fromUser + " is your friend now.")
+                        .setContentText(fromUser + " is your friend now. You can change wallpaper for him/her.")
                         .setContentIntent(pendingIntent);
 
         int mNotificationId = 2;

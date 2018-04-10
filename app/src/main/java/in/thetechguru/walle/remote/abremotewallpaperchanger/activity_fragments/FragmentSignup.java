@@ -41,6 +41,7 @@ import in.thetechguru.walle.remote.abremotewallpaperchanger.model.User;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
+import com.google.gson.Gson;
 
 /**
  * Created by AB on 2017-12-24.
@@ -237,7 +238,9 @@ public class FragmentSignup  extends Fragment implements  GoogleApiClient.OnConn
         password_input.setEnabled(false);
         display_name_input.setEnabled(false);
 
-        FirebaseUtil.getUsersReference().child(firebaseUser.getUid()).setValue(user);
+        FirebaseUtil.getUsersReference()
+                .child(firebaseUser.getUid())
+                .setValue(user);
 
         FirebaseUtil.getUsernameRef(firebaseUser.getUid()).setValue(user.username, new DatabaseReference.CompletionListener() {
             @Override
@@ -259,7 +262,7 @@ public class FragmentSignup  extends Fragment implements  GoogleApiClient.OnConn
                 }else {
                     FirebaseUtil.getUsernamesReference().child(user.username).setValue(firebaseUser.getUid());
 
-                    MyApp.getPref().edit().putString("username",user.username).apply();
+                    MyApp.getPref().edit().putString(getString(R.string.pref_user_obj), new Gson().toJson(user)).apply();
 
                     //send token to server
                     String token = MyApp.getPref().getString(getString(R.string.notification_token),"");

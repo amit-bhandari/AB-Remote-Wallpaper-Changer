@@ -153,6 +153,9 @@
         Reach out to amit.bhandari.c\@gmail.com for knowing more.
     </string>
     <string name="dialog_privacy_policy_pos">Got it</string>
+    <string name="title_set_remote_wall">Set remote wallpaper</string>
+    <string name="choose_friend">Choose friend</string>
+    <string name="pref_user_obj">user_obj</string>
 
 
 </resources>

@@ -6,7 +6,7 @@ android {
         applicationId "in.thetechguru.walle.remote.abremotewallpaperchanger"
         minSdkVersion 19
         targetSdkVersion 27
-        versionCode 7
+        versionCode 11
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
@@ -51,6 +51,7 @@ dependencies {
     compile 'com.google.android.gms:play-services-auth:11.8.0'
     implementation 'com.google.firebase:firebase-messaging:11.8.0'
     implementation 'com.google.firebase:firebase-storage:11.8.0'
+    compile 'com.google.firebase:firebase-crash:11.8.0'
 
     //material dialogs
     compile 'com.afollestad.material-dialogs:core:0.9.6.0'
@@ -68,6 +69,8 @@ dependencies {
     implementation "android.arch.persistence.room:runtime:1.0.0"
     annotationProcessor "android.arch.persistence.room:compiler:1.0.0"
 
+    //gson
+    compile 'com.google.code.gson:gson:2.8.2'
 }
 
 repositories {
