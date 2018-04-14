@@ -30,8 +30,6 @@ import android.widget.Toast;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.bumptech.glide.Glide;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
@@ -44,8 +42,7 @@ import butterknife.ButterKnife;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.MyApp;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.R;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.helpers.FirebaseUtil;
-import in.thetechguru.walle.remote.abremotewallpaperchanger.helpers.UtillityFun;
-import in.thetechguru.walle.remote.abremotewallpaperchanger.history.HistoryRepo;
+import in.thetechguru.walle.remote.abremotewallpaperchanger.helpers.UtilityFun;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.model.Constants;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.model.User;
 
@@ -239,7 +236,7 @@ public class FragmentBlockList extends Fragment implements SwipeRefreshLayout.On
                 return new Runnable() {
                     @Override
                     public void run(){
-                        if(!UtillityFun.isConnectedToInternet()){
+                        if(!UtilityFun.isConnectedToInternet()){
                             new Handler(Looper.getMainLooper()).post(new Runnable() {
                                 @Override
                                 public void run() {

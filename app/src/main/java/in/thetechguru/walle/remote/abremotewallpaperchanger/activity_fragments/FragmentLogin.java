@@ -35,7 +35,7 @@ import butterknife.OnClick;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.MyApp;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.R;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.helpers.FirebaseUtil;
-import in.thetechguru.walle.remote.abremotewallpaperchanger.helpers.UtillityFun;
+import in.thetechguru.walle.remote.abremotewallpaperchanger.helpers.UtilityFun;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.model.User;
 
 /**
@@ -77,7 +77,7 @@ public class FragmentLogin extends Fragment {
 
     @OnClick(R.id.forgot_password_textview)
     void forgotPassword(){
-        if(!UtillityFun.isConnectedToInternet()){
+        if(!UtilityFun.isConnectedToInternet()){
             Snackbar.make(rootView, R.string.no_network_error, Snackbar.LENGTH_SHORT).show();
             return;
         }

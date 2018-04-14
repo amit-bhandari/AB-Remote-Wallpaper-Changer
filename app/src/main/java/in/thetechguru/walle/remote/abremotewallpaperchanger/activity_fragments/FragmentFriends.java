@@ -52,7 +52,7 @@ import butterknife.ButterKnife;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.MyApp;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.R;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.helpers.FirebaseUtil;
-import in.thetechguru.walle.remote.abremotewallpaperchanger.helpers.UtillityFun;
+import in.thetechguru.walle.remote.abremotewallpaperchanger.helpers.UtilityFun;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.history.HistoryItem;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.history.HistoryRepo;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.model.Constants;
@@ -345,6 +345,11 @@ public class FragmentFriends extends Fragment implements SwipeRefreshLayout.OnRe
                             if (downloadUrl != null) {
                                 Log.d("FragmentFriends", "onSuccess: " + downloadUrl.toString());
                             }
+
+                            if(getActivity() instanceof  ActivityMain){
+                                ((ActivityMain)getActivity()).loadInterstial();
+                            }
+
                             Toast.makeText(MyApp.getContext(), "Uploaded successfully", Toast.LENGTH_SHORT).show();
 
                             //add history item in
@@ -435,7 +440,7 @@ public class FragmentFriends extends Fragment implements SwipeRefreshLayout.OnRe
                     @Override
                     public void run(){
 
-                        if(!UtillityFun.isConnectedToInternet()){
+                        if(!UtilityFun.isConnectedToInternet()){
                             new Handler(Looper.getMainLooper()).post(new Runnable() {
                                 @Override
                                 public void run() {

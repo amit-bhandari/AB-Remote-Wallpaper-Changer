@@ -14,7 +14,7 @@ import in.thetechguru.walle.remote.abremotewallpaperchanger.MyApp;
  * Created by abami on 1/18/2018.
  */
 
-public class UtillityFun {
+public class UtilityFun {
 
     private static final NavigableMap<Long, String> suffixes = new TreeMap<>();
     static {
@@ -51,5 +51,4 @@ public class UtillityFun {
         return activeNetwork != null
                 && activeNetwork.isConnectedOrConnecting();
     }
-
 }

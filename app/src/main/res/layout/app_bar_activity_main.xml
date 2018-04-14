@@ -7,7 +7,8 @@
     android:layout_width="match_parent"
     android:background="@color/reveal_color_1"
     android:layout_height="match_parent"
-    tools:context="in.thetechguru.walle.remote.abremotewallpaperchanger.activity_fragments.ActivityMain">
+    tools:context="in.thetechguru.walle.remote.abremotewallpaperchanger.activity_fragments.ActivityMain"
+    xmlns:ads="http://schemas.android.com/apk/res-auto">
 
     <FrameLayout
         android:id="@+id/color_change_layout_view"
@@ -64,15 +65,29 @@
             android:layout_below="@id/tabs"
             app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
-
     </RelativeLayout>
+
+    <com.google.android.gms.ads.AdView
+        android:id="@+id/adView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        ads:adSize="BANNER"
+        android:layout_gravity="bottom"
+        android:visibility="gone"
+        app:adUnitId="@string/banner_history">
+    </com.google.android.gms.ads.AdView>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/fab_margin"
+        android:layout_marginBottom="70dp"
+        android:layout_marginTop="@dimen/fab_margin"
+        android:layout_marginLeft="@dimen/fab_margin"
+        android:layout_marginRight="@dimen/fab_margin"
         android:scaleType="centerCrop"
         android:visibility="invisible"
         app:srcCompat="@drawable/ic_add_black_24dp" />

@@ -36,6 +36,11 @@ import android.widget.Toast;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.bumptech.glide.Glide;
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.InterstitialAd;
+import com.google.android.gms.ads.MobileAds;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
@@ -47,7 +52,7 @@ import butterknife.OnClick;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.MyApp;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.R;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.helpers.FirebaseUtil;
-import in.thetechguru.walle.remote.abremotewallpaperchanger.helpers.UtillityFun;
+import in.thetechguru.walle.remote.abremotewallpaperchanger.helpers.UtilityFun;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.history.HistoryRepo;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.model.Constants;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.model.HttpsRequestPayload;
@@ -70,9 +75,11 @@ public class ActivityMain extends AppCompatActivity
     @BindView(R.id.status_text) TextView statusText;
     SwitchCompat blockSwitch;
 
+    private InterstitialAd mInterstitialAd;
+
     final static String INSTA_WEBSITE = "https://www.instagram.com/_amit_bhandari/?hl=en";
 
-
+    @BindView(R.id.adView) AdView mAdView;
 
     private ViewPagerAdapter adapter;
 
@@ -115,10 +122,56 @@ public class ActivityMain extends AppCompatActivity
                 .into((ImageView)findViewById(R.id.full_background));*/
 
         //colorChange();
+
+        showAd();
+    }
+
+    private void showAd(){
+        if (UtilityFun.isConnectedToInternet()) {
+            MobileAds.initialize(getApplicationContext(), getString(R.string.banner_main));
+            AdRequest adRequest = new AdRequest.Builder()//.addTestDevice("F40E78AED9B7FE233362079AC4C05B61")
+                    .build();
+            if (mAdView != null) {
+                mAdView.loadAd(adRequest);
+                mAdView.setVisibility(View.VISIBLE);
+            }
+        } else {
+            if (mAdView != null) {
+                mAdView.setVisibility(View.GONE);
+            }
+        }
+    }
+
+    public void loadInterstial(){
+        if(UtilityFun.isConnectedToInternet()) {
+                mInterstitialAd = new InterstitialAd(this);
+                mInterstitialAd.setAdUnitId(getString(R.string.inter_wall_change));
+
+                mInterstitialAd.setAdListener(new AdListener() {
+                    @Override
+                    public void onAdClosed() {
+                    }
+
+                    @Override
+                    public void onAdLoaded() {
+                        super.onAdLoaded();
+                        mInterstitialAd.show();
+                    }
+                });
+                requestNewInterstitial();
+        }
+    }
+
+    private void requestNewInterstitial() {
+        AdRequest adRequest = new AdRequest.Builder()
+                //.addTestDevice("F40E78AED9B7FE233362079AC4C05B61")
+                .build();
+
+        mInterstitialAd.loadAd(adRequest);
     }
 
     private void loadInitialScreen() {
-        if(!UtillityFun.isConnectedToInternet()){
+        if(!UtilityFun.isConnectedToInternet()){
             setErrorScreen(R.string.no_network_retry);
         }else {
             statusText.setVisibility(View.INVISIBLE);
@@ -290,7 +343,7 @@ public class ActivityMain extends AppCompatActivity
                     if (dataSnapshot.getValue() != null) {
                         globalCount.setVisibility(View.VISIBLE);
                         globalCount.setText(getString(R.string.global_count
-                                , UtillityFun.format((Long)dataSnapshot.getValue())));
+                                , UtilityFun.format((Long)dataSnapshot.getValue())));
                     }
                 } catch (Exception ignored) {
                 }
@@ -713,5 +766,13 @@ public class ActivityMain extends AppCompatActivity
         MaterialDialog dialog = builder.build();
 
         dialog.show();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mAdView != null) {
+            mAdView.destroy();
+        }
     }
 }

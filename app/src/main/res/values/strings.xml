@@ -158,4 +158,9 @@
     <string name="pref_user_obj">user_obj</string>
 
 
+    <!-- AdMob ad unit IDs -->
+    <string name="banner_main">ca-app-pub-3876828674787345/4338221259</string>
+    <string name="banner_history">ca-app-pub-3876828674787345/2121399255</string>
+    <string name="inter_wall_change">ca-app-pub-3876828674787345/2478344679</string>
+
 </resources>

@@ -27,6 +27,9 @@ import android.widget.Toast;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.bumptech.glide.Glide;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
 
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -34,6 +37,7 @@ import java.util.concurrent.Executors;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.R;
+import in.thetechguru.walle.remote.abremotewallpaperchanger.helpers.UtilityFun;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.history.HistoryItem;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.history.HistoryRepo;
 
@@ -57,6 +61,16 @@ public class ActivityHistory extends AppCompatActivity {
 
     HistoryAdapter adapter;
 
+    @BindView(R.id.adView) AdView mAdView;
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mAdView != null) {
+            mAdView.destroy();
+        }
+    }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,6 +90,24 @@ public class ActivityHistory extends AppCompatActivity {
         recyclerView.setAdapter( adapter);
 
         setTitle("History");
+
+        showAd();
+    }
+
+    private void showAd(){
+        if (UtilityFun.isConnectedToInternet()) {
+            MobileAds.initialize(getApplicationContext(), getString(R.string.banner_history));
+            AdRequest adRequest = new AdRequest.Builder()//.addTestDevice("F40E78AED9B7FE233362079AC4C05B61")
+                    .build();
+            if (mAdView != null) {
+                mAdView.loadAd(adRequest);
+                mAdView.setVisibility(View.VISIBLE);
+            }
+        } else {
+            if (mAdView != null) {
+                mAdView.setVisibility(View.GONE);
+            }
+        }
     }
 
     @Override
