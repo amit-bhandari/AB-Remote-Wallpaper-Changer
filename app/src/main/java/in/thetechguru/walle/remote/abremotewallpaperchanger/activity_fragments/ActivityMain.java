@@ -384,6 +384,7 @@ public class ActivityMain extends AppCompatActivity
         }
     }
 
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -443,30 +444,6 @@ public class ActivityMain extends AppCompatActivity
             }
         });
         return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        switch (id){
-            case R.id.action_settings:
-                //startActivity(new Intent(this, ActivityMain.class));
-                //finish();
-                Toast.makeText(this, "Nothing here yet", Toast.LENGTH_SHORT).show();
-                break;
-
-            case R.id.action_switch_block:
-
-                break;
-        }
-
-
-        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -540,9 +517,9 @@ public class ActivityMain extends AppCompatActivity
                 rateUs();
                 break;
 
-            case R.id.nav_settings:
+            /*case R.id.nav_settings:
                 Toast.makeText(this, "Nothing here yet", Toast.LENGTH_SHORT).show();
-                break;
+                break;*/
 
             case R.id.nav_share:
                 shareApp();
@@ -566,16 +543,8 @@ public class ActivityMain extends AppCompatActivity
                 openUrl(Uri.parse(INSTA_WEBSITE));
                 break;
 
-            case R.id.nav_how_does_it_work:
-                howItWorks();
-                break;
-
-            case R.id.nav_privacy_policy:
-                new MaterialDialog.Builder(this)
-                        .title(R.string.title_privacy_policy)
-                        .content(R.string.dialog_privacy_policy_content)
-                        .positiveText(R.string.dialog_privacy_policy_pos)
-                        .show();
+            case R.id.nav_about:
+                startActivity(new Intent(this, ActivityAbout.class));
                 break;
 
         }

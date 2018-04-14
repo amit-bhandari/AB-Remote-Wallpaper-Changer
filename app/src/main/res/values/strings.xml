@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">AB Wallpaper</string>
+    <string name="app_name">AB Remote Wallpaper</string>
 
     <!-- Main activity -->
     <string name="navigation_drawer_open">Open navigation drawer</string>
@@ -123,7 +123,7 @@
 
     <string name="reject_friend_warn">Reject friend %1$s ?</string>
     <string name="reject">Reject</string>
-    <string name="signout">Signing out</string>
+    <string name="signout">Sign out</string>
     <string name="logout_warn">Your wallpaper change logs will be cleared and your friends won\'t be able to change your wallpaper anymore. Do you want to logout?</string>
     <string name="error_no_network_swipe_down">No network, swipe down to refresh</string>
     <string name="retrying">Retrying…</string>
@@ -162,5 +162,15 @@
     <string name="banner_main">ca-app-pub-3876828674787345/4338221259</string>
     <string name="banner_history">ca-app-pub-3876828674787345/2121399255</string>
     <string name="inter_wall_change">ca-app-pub-3876828674787345/2478344679</string>
+    <string name="title_faq">FAQ</string>
+
+
+    <!-- strings for about us -->
+    <string name="au_version">Version 1.0.0 </string>
+    <string name="au_made_with_love">Made with </string>
+    <string name="au_made_in_india">in India </string>
+    <string name="visit_website">Visit Website</string>
+    <string name="title_about">About</string>
+    <string name="libraries">Libraries</string>
 
 </resources>
