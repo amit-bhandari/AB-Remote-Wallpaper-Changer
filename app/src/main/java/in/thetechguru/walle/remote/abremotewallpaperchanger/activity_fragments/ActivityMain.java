@@ -6,6 +6,7 @@ import android.app.NotificationManager;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -16,6 +17,11 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.SwitchCompat;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.TextPaint;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -78,6 +84,7 @@ public class ActivityMain extends AppCompatActivity
     private InterstitialAd mInterstitialAd;
 
     final static String INSTA_WEBSITE = "https://www.instagram.com/_amit_bhandari/?hl=en";
+    final static String TERMS_USAGE__WEBSITE = "https://thetechguru.in/terms-usage-ab-remote-wallpaper-changer/";
 
     @BindView(R.id.adView) AdView mAdView;
 
@@ -114,14 +121,6 @@ public class ActivityMain extends AppCompatActivity
         toggle.syncState();
 
         navigationView.setNavigationItemSelectedListener(this);
-
-        /*e.with(this)
-                .load("http://thetechguru.in/wp-content/uploads/2018/02/black-background.jpg")
-                //.centerCrop()
-                //.crossFade(500)
-                .into((ImageView)findViewById(R.id.full_background));*/
-
-        //colorChange();
 
         showAd();
     }
@@ -232,9 +231,8 @@ public class ActivityMain extends AppCompatActivity
 
     private void setMainScreen() {
         //if first install, show info message
-        if(MyApp.getPref().getBoolean(getString(R.string.pref_first_install), true)){
-            MyApp.getPref().edit().putBoolean(getString(R.string.pref_first_install), false).apply();
-            howItWorks();
+        if(!MyApp.getPref().getBoolean(getString(R.string.pref_usage_terms), false)){
+            termsOfUsage();
         }
 
         fab.setVisibility(View.VISIBLE);
@@ -246,27 +244,6 @@ public class ActivityMain extends AppCompatActivity
         viewPager.setOffscreenPageLimit(4);
         tabLayout.setupWithViewPager(viewPager);
     }
-
-    /*private void colorChange() {
-        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-            }
-
-            @Override
-            public void onPageSelected(int position) {
-                Log.d("ActivityMain", "onPageSelected: " + position);
-
-
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-
-            }
-        });
-    }*/
 
     private void revealBlockView(boolean reveal){
         if(reveal) {
@@ -552,6 +529,49 @@ public class ActivityMain extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+    private void termsOfUsage(){
+        MaterialDialog dialog =  new MaterialDialog.Builder(this)
+                .title("Terms of Usage")
+                .customView(R.layout.dialog_terms_of_usage, true)
+                .autoDismiss(false)
+                .cancelable(false)
+                .positiveText("I agree")
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        dialog.dismiss();
+                        MyApp.getPref().edit().putBoolean(getString(R.string.pref_usage_terms),true).apply();
+                        howItWorks();
+                    }
+                })
+                .negativeText("Disagree")
+                .onNegative(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        dialog.dismiss();
+                        finish();
+                    }
+                }).build();
+
+        View v = dialog.getCustomView();
+        TextView text = v.findViewById(R.id.terms_of_usage_text);
+        SpannableString ss = new SpannableString(getString(R.string.terms_and_usage));
+        ClickableSpan clickableSpan = new ClickableSpan() {
+            @Override
+            public void onClick(View textView) {
+                openUrl(Uri.parse(TERMS_USAGE__WEBSITE));
+            }
+        };
+        ss.setSpan(clickableSpan, 43, 57, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        text.setText(ss);
+        text.setMovementMethod(LinkMovementMethod.getInstance());
+        text.setHighlightColor(Color.TRANSPARENT);
+
+        dialog.show();
+    }
+
 
     private void howItWorks(){
         String userName = "";

@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
         android:id="@+id/action_privacy_policy"
-        android:icon="@drawable/ic_assignment_black_24dp"
         android:title="@string/title_privacy_policy" />
 
     <item
         android:id="@+id/action_how_does_it_work"
-        android:icon="@drawable/ic_info_outline_black_24dp"
         android:title="@string/title_how_it_works" />
 
 
     <item
         android:id="@+id/action_lib"
-        android:icon="@drawable/ic_info_outline_black_24dp"
         android:title="@string/libraries" />
+
+    <item
+        android:id="@+id/action_terms_of_usage"
+        android:title="@string/title_terms_of_usage" />
 
 </menu>

@@ -1,5 +1,7 @@
 package in.thetechguru.walle.remote.abremotewallpaperchanger.activity_fragments;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -7,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -21,6 +24,7 @@ import in.thetechguru.walle.remote.abremotewallpaperchanger.R;
  */
 
 public class ActivityAbout extends AppCompatActivity {
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,6 +54,10 @@ public class ActivityAbout extends AppCompatActivity {
                         .content(R.string.dialog_privacy_policy_content)
                         .positiveText(R.string.dialog_privacy_policy_pos)
                         .show();
+                break;
+
+            case R.id.action_terms_of_usage:
+                openUrl(Uri.parse(ActivityMain.TERMS_USAGE__WEBSITE));
                 break;
 
             case R.id.action_how_does_it_work:
@@ -87,5 +95,14 @@ public class ActivityAbout extends AppCompatActivity {
                     }
                 })
                 .show();
+    }
+
+    private void openUrl(Uri parse) {
+        try {
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, parse);
+            startActivity(browserIntent);
+        } catch (Exception e) {
+            Toast.makeText(this, "Error opening browser", Toast.LENGTH_SHORT).show();
+        }
     }
 }
