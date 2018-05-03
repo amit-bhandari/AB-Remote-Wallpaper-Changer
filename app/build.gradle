@@ -76,6 +76,8 @@ dependencies {
     //open source lib information
     implementation "com.mikepenz:aboutlibraries:6.0.8"
 
+    //job queue for downloading wallpaper from storage
+    compile 'com.birbit:android-priority-jobqueue:2.0.1'
 }
 
 repositories {

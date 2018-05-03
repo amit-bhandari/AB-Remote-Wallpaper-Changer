@@ -93,7 +93,9 @@ public class SetWallpaper extends Thread {
                     @Override
                     public void onComplete(@NonNull Task<FileDownloadTask.TaskSnapshot> task) {
                         //delete the file
-                        uploadedFile.delete();
+                        if(task.isSuccessful()) {
+                            uploadedFile.delete();
+                        }
                     }
                 });
             }

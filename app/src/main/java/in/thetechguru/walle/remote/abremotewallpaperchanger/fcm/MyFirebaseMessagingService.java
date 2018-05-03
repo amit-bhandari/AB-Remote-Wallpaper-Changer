@@ -4,9 +4,17 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import com.birbit.android.jobqueue.JobManager;
+import com.birbit.android.jobqueue.config.Configuration;
+import com.birbit.android.jobqueue.log.CustomLogger;
+import com.birbit.android.jobqueue.scheduling.FrameworkJobSchedulerService;
+import com.birbit.android.jobqueue.scheduling.GcmJobSchedulerService;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.firebase.crash.FirebaseCrash;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
@@ -22,6 +30,7 @@ import in.thetechguru.walle.remote.abremotewallpaperchanger.history.HistoryRepo;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.model.Constants;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.model.HttpsRequestPayload;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.model.User;
+import in.thetechguru.walle.remote.abremotewallpaperchanger.tasks.SetWallQueue;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.tasks.SetWallpaper;
 
 /**
@@ -29,6 +38,8 @@ import in.thetechguru.walle.remote.abremotewallpaperchanger.tasks.SetWallpaper;
  */
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
+
+    JobManager mJobManager;
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
@@ -56,10 +67,14 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 case HttpsRequestPayload.STATUS_CODE.CHANGE_WALLPAPER:
                     User user = new Gson().fromJson(MyApp.getPref().getString(getString(R.string.pref_user_obj),""),User.class);
                     if(user!=null && user.block_status) {
-                        FirebaseCrash.log("Wallpaper request came even in bloked mode for user : " + user.username);
+                        FirebaseCrash.log("Wallpaper request came even in blocked mode for user : " + user.username);
                         return;
                     }
-                    new SetWallpaper(wallpaper_url, fromUser).start();
+                    //new SetWallpaper(wallpaper_url, fromUser).start();
+                    if(mJobManager==null) {
+                        createJobManager();
+                    }
+                    mJobManager.addJobInBackground(new SetWallQueue(wallpaper_url, fromUser));
                     break;
 
                 case HttpsRequestPayload.STATUS_CODE.WALLPAPER_CHANGED:
@@ -67,6 +82,43 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     break;
             }
         }
+    }
+
+    private void createJobManager(){
+        Configuration.Builder builder = new Configuration.Builder(this)
+                .minConsumerCount(1) // always keep at least one consumer alive
+                .maxConsumerCount(3) // up to 3 consumers at a time
+                .loadFactor(3) // 3 jobs per consumer
+                .consumerKeepAlive(120) // wait 2 minute
+                .customLogger(new CustomLogger() {
+                    private static final String TAG = "JOBS";
+                    @Override
+                    public boolean isDebugEnabled() {
+                        return true;
+                    }
+
+                    @Override
+                    public void d(String text, Object... args) {
+                        Log.d(TAG, String.format(text, args));
+                    }
+
+                    @Override
+                    public void e(Throwable t, String text, Object... args) {
+                        Log.e(TAG, String.format(text, args), t);
+                    }
+
+                    @Override
+                    public void e(String text, Object... args) {
+                        Log.e(TAG, String.format(text, args));
+                    }
+
+                    @Override
+                    public void v(String text, Object... args) {
+
+                    }
+                });
+
+        mJobManager = new JobManager(builder.build());
     }
 
     private void postFriendRequest(String fromUser){
