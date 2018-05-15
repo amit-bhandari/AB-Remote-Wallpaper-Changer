@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/AB-Remote-Wallpaper-Changer.iml" filepath="$PROJECT_DIR$/AB-Remote-Wallpaper-Changer.iml" />
       <module fileurl="file://$PROJECT_DIR$/ABRemoteWallpaperChanger.iml" filepath="$PROJECT_DIR$/ABRemoteWallpaperChanger.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>

@@ -4,12 +4,13 @@ android {
     compileSdkVersion 27
     defaultConfig {
         applicationId "in.thetechguru.walle.remote.abremotewallpaperchanger"
-        minSdkVersion 19
+        minSdkVersion 21
         targetSdkVersion 27
         versionCode 11
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
+        multiDexEnabled true
     }
     buildTypes {
         release {
@@ -29,13 +30,13 @@ dependencies {
     compile 'com.android.support:cardview-v7:27.1.1'
 
     testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'com.android.support.test:runner:1.0.1'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
     //glide
     //noinspection GradleDependency
     implementation 'com.github.bumptech.glide:glide:3.7.0'
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.4.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.7.1'
 
     //volley
     compile 'com.android.volley:volley:1.1.0'
@@ -45,14 +46,14 @@ dependencies {
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
 
     //firebase real time db and auth
-    implementation 'com.google.firebase:firebase-database:15.0.0'
-    compile 'com.google.firebase:firebase-auth:15.0.0'
-    compile 'com.google.firebase:firebase-core:15.0.0'
-    compile 'com.google.android.gms:play-services-auth:15.0.0'
-    implementation 'com.google.firebase:firebase-messaging:15.0.0'
-    implementation 'com.google.firebase:firebase-storage:15.0.0'
-    compile 'com.google.firebase:firebase-crash:15.0.0'
-    compile 'com.google.firebase:firebase-ads:15.0.0'
+    implementation 'com.google.firebase:firebase-database:15.0.1'
+    compile 'com.google.firebase:firebase-auth:15.1.0'
+    compile 'com.google.firebase:firebase-core:15.0.2'
+    compile 'com.google.android.gms:play-services-auth:15.0.1'
+    implementation 'com.google.firebase:firebase-messaging:15.0.2'
+    implementation 'com.google.firebase:firebase-storage:15.0.2'
+    compile 'com.google.firebase:firebase-crash:15.0.2'
+    compile 'com.google.firebase:firebase-ads:15.0.1'
 
     //material dialogs
     compile 'com.afollestad.material-dialogs:core:0.9.6.0'
@@ -64,11 +65,11 @@ dependencies {
     debugCompile 'com.squareup.leakcanary:leakcanary-android:1.5.4'
     releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.4'
 
-    compile 'com.theartofdev.edmodo:android-image-cropper:2.5.1'
+    compile 'com.theartofdev.edmodo:android-image-cropper:2.6.0'
 
     // Room
-    implementation "android.arch.persistence.room:runtime:1.0.0"
-    annotationProcessor "android.arch.persistence.room:compiler:1.0.0"
+    implementation "android.arch.persistence.room:runtime:1.1.0"
+    annotationProcessor "android.arch.persistence.room:compiler:1.1.0"
 
     //gson
     compile 'com.google.code.gson:gson:2.8.2'
