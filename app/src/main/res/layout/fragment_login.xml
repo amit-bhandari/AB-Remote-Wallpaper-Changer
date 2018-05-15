@@ -87,7 +87,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:spinning_bar_color="#FFF"
             app:spinning_bar_padding="6dp"
-            app:spinning_bar_width="4dp" />
+            app:spinning_bar_width="2dp" />
 
         <TextView
             android:id="@+id/forgot_password_textview"

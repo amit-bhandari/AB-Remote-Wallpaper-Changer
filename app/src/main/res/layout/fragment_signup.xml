@@ -38,7 +38,7 @@
             android:layout_marginStart="8dp"
             android:ems="10"
             android:hint="@string/hint_display_name"
-            android:inputType="textEmailAddress"
+            android:inputType="textPersonName"
             app:layout_constraintBottom_toTopOf="@+id/email_id_input"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.503"
@@ -87,7 +87,7 @@
             app:layout_constraintHorizontal_bias="0.503"
             app:layout_constraintStart_toStartOf="parent"
             android:background="@drawable/rounded_corners"
-            app:spinning_bar_width="4dp"
+            app:spinning_bar_width="2dp"
             app:spinning_bar_color="#FFF"
             app:spinning_bar_padding="6dp" />
 

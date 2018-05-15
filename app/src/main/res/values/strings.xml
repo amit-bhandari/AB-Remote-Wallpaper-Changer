@@ -24,6 +24,7 @@
     <string name="invalid_password_error">Invalid password</string>
     <string name="unknown_login_error">Error logging in, try again later.</string>
     <string name="empty_username_error">Enter username</string>
+    <string name="invalid_character_username_error">Invalid character in username</string>
     <string name="account_exists_error">Account already exists</string>
     <string name="weak_password_error">Weak password, enter at least 6 characters</string>
     <string name="weak_email_error">Weak email, enter proper email</string>

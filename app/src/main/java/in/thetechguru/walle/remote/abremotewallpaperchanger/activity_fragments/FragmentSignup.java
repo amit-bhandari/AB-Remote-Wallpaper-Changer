@@ -157,6 +157,12 @@ public class FragmentSignup  extends Fragment implements  GoogleApiClient.OnConn
             return;
         }
 
+        if(username.contains(".") || username.contains("#") || username.contains("$")
+                || username.contains("[") || username.contains("]")){
+            username_input.setError(getString(R.string.invalid_character_username_error));
+            return;
+        }
+
         /*
         data structure in firebase database
         app : {

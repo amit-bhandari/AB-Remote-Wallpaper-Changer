@@ -14,15 +14,13 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity
-            android:name=".activity_fragments.ActivityMain"
+        <activity android:name=".activity_fragments.ActivityMain"
             android:label="@string/app_name"
             android:launchMode="singleTop"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
 
-        <activity
-            android:name=".activity_fragments.ActivitySetAsWallpaper"
+        <activity android:name=".activity_fragments.ActivitySetAsWallpaper"
             android:label="@string/title_set_remote_wall"
             android:launchMode="singleTop"
             android:theme="@style/AppTheme.NoActionBar">
@@ -47,8 +45,7 @@
 
         </activity>
 
-        <activity
-            android:name=".activity_fragments.ActivityPermissionSeek"
+        <activity android:name=".activity_fragments.ActivityPermissionSeek"
             android:label="@string/app_name"
             android:launchMode="singleTask"
             android:theme="@style/splashScreenTheme"

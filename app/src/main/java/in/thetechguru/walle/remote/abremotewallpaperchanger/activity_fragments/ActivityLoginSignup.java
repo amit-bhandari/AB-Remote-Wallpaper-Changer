@@ -1,5 +1,6 @@
 package in.thetechguru.walle.remote.abremotewallpaperchanger.activity_fragments;
 
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -39,6 +40,7 @@ public class ActivityLoginSignup extends AppCompatActivity {
     @BindView(R.id.tabs) TabLayout tabLayout;
     @BindView(R.id.toolbar_title) TextView title;
 
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,5 +75,13 @@ public class ActivityLoginSignup extends AppCompatActivity {
         adapter.addFragment(new FragmentLogin(), "Login");
         adapter.addFragment(new FragmentSignup(), "Sign Up");
         viewPager.setAdapter(adapter);
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent startMain = new Intent(Intent.ACTION_MAIN);
+        startMain.addCategory(Intent.CATEGORY_HOME);
+        startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(startMain);
     }
 }

@@ -487,7 +487,7 @@ public class ActivityMain extends AppCompatActivity
                             public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
                                 FirebaseUtil.getAuth().signOut();
                                 //remove token from server
-                                FirebaseUtil.getNotificationTokenRef().child(MyApp.getUser().username).removeValue();
+                                //FirebaseUtil.getNotificationTokenRef().child(MyApp.getUser().username).removeValue();
 
                                 //remove history
                                 HistoryRepo.getInstance().nukeHistory();

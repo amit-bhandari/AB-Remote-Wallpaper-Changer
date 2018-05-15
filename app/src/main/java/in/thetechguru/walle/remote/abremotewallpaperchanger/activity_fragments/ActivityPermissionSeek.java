@@ -37,6 +37,12 @@ public class ActivityPermissionSeek extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if ((getIntent().getFlags() & Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT) != 0) {
+            finish();
+            return;
+        }
+
         if(!hasPermissions(this, PERMISSIONS)) {
             try {
                 permissionDetailsDialog();
@@ -45,7 +51,7 @@ public class ActivityPermissionSeek extends AppCompatActivity {
             }
         }else {
             startActivity(new Intent(this, ActivityMain.class));
-            finish();
+            //finish();
         }
     }
 
@@ -101,9 +107,8 @@ public class ActivityPermissionSeek extends AppCompatActivity {
                     return;
                 }
                 // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    finish();
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    //finish();
                     startActivity(new Intent(this, ActivityMain.class));
                     }
                 }
