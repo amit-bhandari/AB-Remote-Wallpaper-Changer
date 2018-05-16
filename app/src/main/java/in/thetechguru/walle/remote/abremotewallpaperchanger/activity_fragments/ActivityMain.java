@@ -19,7 +19,6 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.widget.SwitchCompat;
 import android.text.SpannableString;
 import android.text.Spanned;
-import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.util.Log;
@@ -535,11 +534,17 @@ public class ActivityMain extends AppCompatActivity
                 startActivity(new Intent(this, ActivityAbout.class));
                 break;
 
+            case R.id.nav_faq:
+                startActivity(new Intent(this, ActivityFAQ.class));
+                break;
+
         }
 
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+
 
     private void termsOfUsage(){
         MaterialDialog dialog =  new MaterialDialog.Builder(this)
@@ -616,6 +621,7 @@ public class ActivityMain extends AppCompatActivity
             Toast.makeText(this, "Error opening browser", Toast.LENGTH_SHORT).show();
         }
     }
+
     private void feedbackEmail() {
         String myDeviceModel = Build.MODEL;
         Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(

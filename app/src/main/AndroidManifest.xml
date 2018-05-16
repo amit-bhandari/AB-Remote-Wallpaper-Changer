@@ -67,6 +67,9 @@
         <activity android:name=".activity_fragments.ActivityAbout"
             android:theme="@style/AppTheme.NoActionBar"/>
 
+        <activity android:name=".activity_fragments.ActivityFAQ"
+            android:theme="@style/AppTheme.NoActionBar"/>
+
         <activity android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
             android:theme="@style/Base.Theme.AppCompat"/> <!-- optional (needed if default theme has no action bar) -->
 
