@@ -65,6 +65,7 @@
         android:layout_below="@+id/display_name"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="13dp"
+        android:textIsSelectable="true"
         android:text="@string/username_text"
         android:textSize="20sp" />
 

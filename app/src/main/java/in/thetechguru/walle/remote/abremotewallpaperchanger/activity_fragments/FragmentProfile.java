@@ -1,5 +1,8 @@
 package in.thetechguru.walle.remote.abremotewallpaperchanger.activity_fragments;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -215,5 +218,17 @@ public class FragmentProfile extends Fragment {
                 .setAspectRatio(1,1)
                 .setOutputCompressQuality(5)
                 .start(getActivity());
+    }
+
+    @OnClick(R.id.username)
+    void onClickUsername(){
+        if(isAdded() && getActivity()!=null) {
+            ClipboardManager clipboard = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+            ClipData clip = ClipData.newPlainText("", username.getText());
+            if (clipboard != null) {
+                clipboard.setPrimaryClip(clip);
+                Toast.makeText(getActivity(), "Username copied to clipboard", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 }

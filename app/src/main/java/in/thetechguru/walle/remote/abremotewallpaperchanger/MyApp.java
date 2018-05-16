@@ -10,6 +10,7 @@ import android.preference.PreferenceManager;
 import com.squareup.leakcanary.LeakCanary;
 
 import in.thetechguru.walle.remote.abremotewallpaperchanger.model.User;
+import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
 
 /**
  Copyright 2017 Amit Bhandari AB
@@ -41,6 +42,11 @@ public class MyApp extends Application {
             return;
         }
         LeakCanary.install(this);
+
+        CalligraphyConfig.initDefault(new CalligraphyConfig.Builder()
+                .setDefaultFontPath("fonts/asap.ttf")
+                .setFontAttrId(R.attr.fontPath)
+                .build());
 
         super.onCreate();
     }

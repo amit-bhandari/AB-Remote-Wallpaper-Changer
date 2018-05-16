@@ -33,6 +33,7 @@
 
         <TextView
             android:id="@+id/name"
+            android:textColor="@color/white"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/app_name"
@@ -63,7 +64,7 @@
             android:layout_height="wrap_content"
             android:text="@string/au_version"
             android:textSize="@dimen/au_app_version"
-            android:typeface="monospace"
+            android:textColor="@color/white"
             android:gravity="center"
             android:layout_marginBottom="@dimen/au_app_version_margin"
             android:layout_marginTop="@dimen/au_app_version_margin" />
@@ -73,9 +74,9 @@
             android:layout_below="@+id/version"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textColor="@color/white"
             android:text="@string/au_email_id"
             android:textSize="@dimen/au_app_email"
-            android:typeface="monospace"
             android:gravity="center_horizontal"
             android:layout_marginTop="@dimen/au_app_email_margin" />
 
@@ -93,10 +94,11 @@
             android:layout_height="wrap_content"
             android:text="@string/au_made_with_love"
             android:textSize="@dimen/au_icon_credit"
-            android:typeface="monospace"
+            android:textColor="@color/white"
             android:layout_marginTop="@dimen/au_icon_credit_margin"
             android:layout_marginRight="@dimen/au_icon_credit_margin"
-            android:layout_marginEnd="@dimen/au_icon_credit_margin" />
+            android:layout_marginEnd="@dimen/au_icon_credit_margin"
+            tools:ignore="RtlHardcoded" />
 
         <ImageView
             android:layout_width="@dimen/au_heart_icon"
@@ -107,12 +109,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/au_made_in_india"
+            android:textColor="@color/white"
             android:textSize="@dimen/au_icon_credit"
-            android:typeface="monospace"
             android:gravity="center_horizontal"
             android:layout_marginTop="@dimen/au_icon_credit_margin"
             android:layout_marginRight="@dimen/au_icon_credit_margin"
-            android:layout_marginEnd="@dimen/au_icon_credit_margin" />
+            android:layout_marginEnd="@dimen/au_icon_credit_margin"
+            tools:ignore="RtlHardcoded" />
 
     </LinearLayout>
 

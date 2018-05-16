@@ -83,6 +83,9 @@ dependencies {
 
     //job queue for downloading wallpaper from storage
     compile 'com.birbit:android-priority-jobqueue:2.0.1'
+
+    //font
+    implementation 'uk.co.chrisjenx:calligraphy:2.3.0'
 }
 
 repositories {

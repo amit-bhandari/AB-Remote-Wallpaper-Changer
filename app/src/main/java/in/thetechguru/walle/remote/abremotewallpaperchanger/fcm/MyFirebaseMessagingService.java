@@ -148,8 +148,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 new NotificationCompat.Builder(this, Constants.CHANNEL_ID)
                         .setSmallIcon(R.drawable.ic_person_add_black_24dp)
                         .setAutoCancel(true)
-                        .setContentTitle("Friend request")
-                        .setContentText(fromUser + " wants to connect with you! Once connected, both parties can change each others wallpaper remotely.")
+                        .setContentTitle("Friend request from " + fromUser)
+                        .setContentText(fromUser + " wants to connect with you! Once connected, you can change each others wallpaper remotely.")
                         .setContentIntent(pendingIntent);
 
         int mNotificationId = new Random().nextInt();
@@ -173,7 +173,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this, Constants.CHANNEL_ID)
                         .setSmallIcon(R.drawable.ic_person_black_24dp)
-                        .setContentTitle("Request Accepted")
+                        .setContentTitle(fromUser + " accepted your friend request")
                         .setAutoCancel(true)
                         .setContentText(fromUser + " is your friend now. You can change wallpaper for him/her.")
                         .setContentIntent(pendingIntent);
@@ -225,7 +225,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this, Constants.CHANNEL_ID)
-                        .setSmallIcon(R.drawable.ic_wallpaper_black_24dp)
+                        .setSmallIcon(R.drawable.ic_error_outline_black_24dp)
                         .setContentTitle("Wallpaper change failure")
                         .setAutoCancel(true)
                         .setContentText("Failed to change wallpaper for " + fromUser )

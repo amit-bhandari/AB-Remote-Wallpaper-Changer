@@ -118,8 +118,8 @@ public class SetWallQueue extends Job {
             double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
             System.out.println("Download is " + progress + "% done");
         }).addOnCompleteListener(task -> {
-            //uploadedFile.delete();
-            status = JOB_STATUS.FAILURE;
+            uploadedFile.delete();
+            status = JOB_STATUS.SUCCESS;
         });
 
         //while running, keep on checking status after every 1 second (because firebase don't give synchronous download option. Why would they do that.
