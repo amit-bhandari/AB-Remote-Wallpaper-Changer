@@ -59,7 +59,7 @@ public class SetWallQueue extends Job {
 
     @Override
     protected int getRetryLimit() {
-        return super.getRetryLimit();
+        return 2;
     }
 
     @Override
@@ -96,7 +96,8 @@ public class SetWallQueue extends Job {
             public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
                 // Local temp file has been created
                 Log.d("SetWallpaper", "onSuccess: downloaded file in local : " + taskSnapshot.toString());
-                setWallpaper(finalLocalFile);
+                //setWallpaper(finalLocalFile);
+                //throw new RuntimeException("Failed");
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -104,6 +105,7 @@ public class SetWallQueue extends Job {
                 // Handle any errors
                 FirebaseCrash.report(exception);
                 Log.d("SetWallpaper", "onFailure: Error downloading photo from firebase storage : " + exception.getMessage());
+                throw new RuntimeException("Failed");
             }
         }).addOnProgressListener(new OnProgressListener<FileDownloadTask.TaskSnapshot>() {
             @Override
@@ -115,11 +117,14 @@ public class SetWallQueue extends Job {
             @Override
             public void onComplete(@NonNull Task<FileDownloadTask.TaskSnapshot> task) {
                 //delete the file
-                if(task.isSuccessful()) {
+                /*if(task.isSuccessful()) {
                     uploadedFile.delete();
-                }
+                }*/
             }
         });
+
+
+        throw new RuntimeException("Fail");
     }
 
 
@@ -142,7 +147,7 @@ public class SetWallQueue extends Job {
             HistoryRepo.getInstance().putHistoryItem(item);
 
             User user = MyApp.getUser();
-            if(user!=null){
+            if(user==null){
                 user = new Gson().fromJson(MyApp.getPref().getString(MyApp.getContext().getString(R.string.pref_user_obj),""), User.class);
             }
 
@@ -173,11 +178,18 @@ public class SetWallQueue extends Job {
 
     @Override
     protected void onCancel(int cancelReason, @Nullable Throwable throwable) {
-
+        Log.d("SetWallQueue", "onCancel: ");
+        //notify firebase function for sending fcm to userName
+        HttpsRequestPayload payload = new HttpsRequestPayload(fromUser
+                , MyApp.getUser().username
+                , HttpsRequestPayload.STATUS_CODE.WALLPAPER_CHANGE_FAILED
+                , id);
+        new SendHttpsRequest(payload).start();
     }
 
     @Override
     protected RetryConstraint shouldReRunOnThrowable(@NonNull Throwable throwable, int runCount, int maxRunCount) {
+        Log.d("SetWallQueue", "shouldReRunOnThrowable: " + runCount);
         return RetryConstraint.createExponentialBackoff(runCount, 1000);
     }
 }

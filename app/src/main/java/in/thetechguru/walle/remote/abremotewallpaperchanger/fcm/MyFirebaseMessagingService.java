@@ -3,18 +3,12 @@ package in.thetechguru.walle.remote.abremotewallpaperchanger.fcm;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
-import android.net.Uri;
-import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.birbit.android.jobqueue.JobManager;
 import com.birbit.android.jobqueue.config.Configuration;
 import com.birbit.android.jobqueue.log.CustomLogger;
-import com.birbit.android.jobqueue.scheduling.FrameworkJobSchedulerService;
-import com.birbit.android.jobqueue.scheduling.GcmJobSchedulerService;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.firebase.crash.FirebaseCrash;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
@@ -88,6 +82,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
                 case HttpsRequestPayload.STATUS_CODE.WALLPAPER_CHANGED:
                     postWallpaperChanged(wallpaper_url,fromUser);
+                    break;
+
+                case HttpsRequestPayload.STATUS_CODE.WALLPAPER_CHANGE_FAILED:
+                    postWallpaperChangeFailure(wallpaper_url, fromUser);
                     break;
             }
         }
@@ -182,7 +180,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     }
 
     private void postWallpaperChanged(String wallpaperUrl, String fromUser){
-
         PendingIntent pendingIntent;
         Intent notificationIntent = new Intent(this, ActivityMain.class);
         notificationIntent.putExtra("tab", "friends");
@@ -210,4 +207,31 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         }
     }
 
+    private void postWallpaperChangeFailure(String wallpaperUrl, String fromUser){
+        PendingIntent pendingIntent;
+        Intent notificationIntent = new Intent(this, ActivityMain.class);
+        notificationIntent.putExtra("tab", "friends");
+        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        pendingIntent = PendingIntent.getActivity(this, new Random().nextInt(),
+                notificationIntent, 0);
+
+
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(this, Constants.CHANNEL_ID)
+                        .setSmallIcon(R.drawable.ic_wallpaper_black_24dp)
+                        .setContentTitle("Wallpaper change failure")
+                        .setAutoCancel(true)
+                        .setContentText("Failed changed wallpaper for " + fromUser )
+                        .setContentIntent(pendingIntent);
+
+        //update history item for showing success
+        HistoryRepo.getInstance().updateHistoryItem(wallpaperUrl, HistoryItem.STATUS.FAILURE);
+
+        int mNotificationId = 3;
+        NotificationManager mNotifyMgr =
+                (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        if (mNotifyMgr != null) {
+            mNotifyMgr.notify(mNotificationId, mBuilder.build());
+        }
+    }
 }

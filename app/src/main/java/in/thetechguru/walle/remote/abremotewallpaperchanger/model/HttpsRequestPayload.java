@@ -33,6 +33,7 @@ public class HttpsRequestPayload {
         String FRIEND_ADDED = "1";
         String CHANGE_WALLPAPER = "2";
         String WALLPAPER_CHANGED = "3";
+        String WALLPAPER_CHANGE_FAILED = "4";
     }
 
 }
