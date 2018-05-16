@@ -15,7 +15,9 @@ import android.widget.Toast;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 
+import in.thetechguru.walle.remote.abremotewallpaperchanger.BuildConfig;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.R;
+import in.thetechguru.walle.remote.abremotewallpaperchanger.preferences.Preferences;
 
 /**
  Copyright 2017 Amit Bhandari AB
@@ -52,6 +54,10 @@ public class ActivityPermissionSeek extends AppCompatActivity {
         }else {
             startActivity(new Intent(this, ActivityMain.class));
             //finish();
+        }
+
+        if(BuildConfig.DEBUG){
+            Preferences.setAdsRemoved(this, true);
         }
     }
 

@@ -42,7 +42,8 @@ import in.thetechguru.walle.remote.abremotewallpaperchanger.tasks.SetWallpaper;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
-    JobManager mJobManager;
+    //priority queue job manager
+    private JobManager mJobManager;
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
@@ -68,16 +69,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     break;
 
                 case HttpsRequestPayload.STATUS_CODE.CHANGE_WALLPAPER:
-                    User user = new Gson().fromJson(MyApp.getPref().getString(getString(R.string.pref_user_obj),""),User.class);
-                    if(user!=null && user.block_status) {
-                        FirebaseCrash.log("Wallpaper request came even in blocked mode for user : " + user.username);
-                        return;
-                    }
-                    //new SetWallpaper(wallpaper_url, fromUser).start();
-                    if(mJobManager==null) {
-                        createJobManager();
-                    }
-                    mJobManager.addJobInBackground(new SetWallQueue(wallpaper_url, fromUser));
+                    changeWallpaperRequest(fromUser, wallpaper_url);
                     break;
 
                 case HttpsRequestPayload.STATUS_CODE.WALLPAPER_CHANGED:
@@ -89,6 +81,19 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     break;
             }
         }
+    }
+
+    private void changeWallpaperRequest(String fromUser, String wallpaper_url) {
+        User user = new Gson().fromJson(MyApp.getPref().getString(getString(R.string.pref_user_obj),""),User.class);
+        if(user!=null && user.block_status) {
+            FirebaseCrash.log("Wallpaper request came even in blocked mode for user : " + user.username);
+            return;
+        }
+        //new SetWallpaper(wallpaper_url, fromUser).start();
+        if(mJobManager==null) {
+            createJobManager();
+        }
+        mJobManager.addJobInBackground(new SetWallQueue(wallpaper_url, fromUser));
     }
 
     private void createJobManager(){

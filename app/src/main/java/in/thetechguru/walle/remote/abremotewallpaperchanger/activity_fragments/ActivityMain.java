@@ -64,6 +64,7 @@ import in.thetechguru.walle.remote.abremotewallpaperchanger.model.Constants;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.model.HttpsRequestPayload;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.helpers.ViewPagerAdapter;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.model.User;
+import in.thetechguru.walle.remote.abremotewallpaperchanger.preferences.Preferences;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.tasks.SendHttpsRequest;
 
 /**
@@ -139,7 +140,7 @@ public class ActivityMain extends AppCompatActivity
     }
 
     private void showAd(){
-        if (UtilityFun.isConnectedToInternet()) {
+        if (!Preferences.isAdsRemoved(this) && UtilityFun.isConnectedToInternet()) {
             MobileAds.initialize(getApplicationContext(), getString(R.string.banner_main));
             AdRequest adRequest = new AdRequest.Builder()//.addTestDevice("F40E78AED9B7FE233362079AC4C05B61")
                     .build();
@@ -155,7 +156,7 @@ public class ActivityMain extends AppCompatActivity
     }
 
     public void loadInterstial(){
-        if(UtilityFun.isConnectedToInternet()) {
+        if(!Preferences.isAdsRemoved(this) && UtilityFun.isConnectedToInternet()) {
                 mInterstitialAd = new InterstitialAd(this);
                 mInterstitialAd.setAdUnitId(getString(R.string.inter_wall_change));
 

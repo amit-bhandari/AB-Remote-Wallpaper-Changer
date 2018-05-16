@@ -40,6 +40,7 @@ import in.thetechguru.walle.remote.abremotewallpaperchanger.R;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.helpers.UtilityFun;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.history.HistoryItem;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.history.HistoryRepo;
+import in.thetechguru.walle.remote.abremotewallpaperchanger.preferences.Preferences;
 
 /**
  Copyright 2017 Amit Bhandari AB
@@ -68,7 +69,7 @@ public class ActivityHistory extends AppCompatActivity {
     @BindView(R.id.status_text)
     TextView statusText;
 
-    HistoryAdapter adapter;
+    private HistoryAdapter adapter;
 
     @BindView(R.id.adView) AdView mAdView;
 
@@ -104,7 +105,7 @@ public class ActivityHistory extends AppCompatActivity {
     }
 
     private void showAd(){
-        if (UtilityFun.isConnectedToInternet()) {
+        if (!Preferences.isAdsRemoved(this) && UtilityFun.isConnectedToInternet()) {
             MobileAds.initialize(getApplicationContext(), getString(R.string.banner_history));
             AdRequest adRequest = new AdRequest.Builder()//.addTestDevice("F40E78AED9B7FE233362079AC4C05B61")
                     .build();
@@ -195,8 +196,9 @@ public class ActivityHistory extends AppCompatActivity {
             });
         }
 
+        @NonNull
         @Override
-        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View view;
 
             if (viewType == VIEW_TYPE_HISTORY_SELF) {
@@ -213,7 +215,7 @@ public class ActivityHistory extends AppCompatActivity {
         }
 
         @Override
-        public void onBindViewHolder(RecyclerView.ViewHolder holder, int i) {
+        public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int i) {
             CharSequence ago =
                     DateUtils.getRelativeTimeSpanString(historyItems.get(i).timestamp);
             Log.d("HistoryAdapter", "onBindViewHolder: " + ago);
@@ -227,8 +229,14 @@ public class ActivityHistory extends AppCompatActivity {
                             .placeholder(R.drawable.ic_error_outline_black_24dp)
                             .into(((HistorySelfChanged)holder).imageView);
                     ((HistorySelfChanged)holder).timestamp.setText(ago);
-                    if(historyItems.get(i).status==HistoryItem.STATUS.SUCCESS){
-                        ((HistorySelfChanged) holder).changeStatus.setImageDrawable(getResources().getDrawable(R.drawable.ic_check_black_24dp));
+                    switch (historyItems.get(i).status){
+                        case HistoryItem.STATUS.SUCCESS:
+                            ((HistorySelfChanged) holder).changeStatus.setImageDrawable(getResources().getDrawable(R.drawable.ic_check_black_24dp));
+                            break;
+
+                        case HistoryItem.STATUS.FAILURE:
+                            ((HistorySelfChanged) holder).changeStatus.setImageDrawable(getResources().getDrawable(R.drawable.ic_error_outline_black_24dp));
+                            break;
                     }
                     break;
 

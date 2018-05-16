@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Environment;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -51,6 +52,14 @@ public class SetWallQueue extends Job {
     private String id;
     private String fromUser;
 
+    private int RETRY_LIMIT = 5;
+
+    enum JOB_STATUS{
+        RUNNING, SUCCESS, FAILURE
+    }
+
+    private JOB_STATUS status = JOB_STATUS.RUNNING;
+
     public SetWallQueue(String id, String fromUser) {
         super(new Params(PRIORITY).requireNetwork().persist());
         this.id = id;
@@ -59,16 +68,20 @@ public class SetWallQueue extends Job {
 
     @Override
     protected int getRetryLimit() {
-        return 2;
+        return RETRY_LIMIT;
     }
 
     @Override
     public void onAdded() {
-
+        Log.d("SetWallQueue", "onAdded: Job added to queue for changing wallpaper");
     }
 
     @Override
     public void onRun() throws Throwable {
+        Log.d("SetWallQueue", "onRun: starting again");
+
+        status = JOB_STATUS.RUNNING;
+
         final StorageReference uploadedFile = FirebaseUtil.getStorage().child(id);
         File localFile;
         try {
@@ -84,49 +97,48 @@ public class SetWallQueue extends Job {
             }
             Log.d("SetWallpaper", "save path: " + localFile.getAbsolutePath());
         } catch (Exception e) {
+            Log.d("SetWallQueue", "Error : ");
+            status = JOB_STATUS.FAILURE;
             e.printStackTrace();
             FirebaseCrash.report(e);
             return;
         }
 
-
         final File finalLocalFile = localFile;
-        uploadedFile.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
-            @Override
-            public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                // Local temp file has been created
-                Log.d("SetWallpaper", "onSuccess: downloaded file in local : " + taskSnapshot.toString());
-                //setWallpaper(finalLocalFile);
-                //throw new RuntimeException("Failed");
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception exception) {
-                // Handle any errors
-                FirebaseCrash.report(exception);
-                Log.d("SetWallpaper", "onFailure: Error downloading photo from firebase storage : " + exception.getMessage());
-                throw new RuntimeException("Failed");
-            }
-        }).addOnProgressListener(new OnProgressListener<FileDownloadTask.TaskSnapshot>() {
-            @Override
-            public void onProgress(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
-                System.out.println("Download is " + progress + "% done");
-            }
-        }).addOnCompleteListener(new OnCompleteListener<FileDownloadTask.TaskSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<FileDownloadTask.TaskSnapshot> task) {
-                //delete the file
-                /*if(task.isSuccessful()) {
-                    uploadedFile.delete();
-                }*/
-            }
+        uploadedFile.getFile(localFile).addOnSuccessListener(taskSnapshot -> {
+            // Local temp file has been created
+            Log.d("SetWallpaper", "onSuccess: downloaded file in local : " + taskSnapshot.toString());
+            setWallpaper(finalLocalFile);
+        }).addOnFailureListener(exception -> {
+            // Handle any errors
+            FirebaseCrash.report(exception);
+            Log.d("SetWallpaper", "onFailure: Error downloading photo from firebase storage : " + exception.getMessage());
+            status = JOB_STATUS.FAILURE;
+        }).addOnProgressListener(taskSnapshot -> {
+            double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+            System.out.println("Download is " + progress + "% done");
+        }).addOnCompleteListener(task -> {
+            //uploadedFile.delete();
+            status = JOB_STATUS.FAILURE;
         });
 
+        //while running, keep on checking status after every 1 second
+        //if status fail, throw exception
+        while (status==JOB_STATUS.RUNNING) {
+            Thread.sleep(1000);
 
-        throw new RuntimeException("Fail");
+            Log.d("SetWallQueue", "polling status: " + status);
+
+            if(status==JOB_STATUS.FAILURE) {
+                throw new RuntimeException("Fail");
+            }
+
+            if(status==JOB_STATUS.SUCCESS) {
+                break;
+            }
+        }
+
     }
-
 
     private void setWallpaper(File localFile){
         Bitmap photo = getBitmapFromFile(localFile);
