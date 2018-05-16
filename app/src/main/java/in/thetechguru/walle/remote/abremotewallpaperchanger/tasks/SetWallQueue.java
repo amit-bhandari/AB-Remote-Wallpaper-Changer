@@ -122,8 +122,9 @@ public class SetWallQueue extends Job {
             status = JOB_STATUS.FAILURE;
         });
 
-        //while running, keep on checking status after every 1 second
+        //while running, keep on checking status after every 1 second (because firebase don't give synchronous download option. Why would they do that.
         //if status fail, throw exception
+        //is this ugly? Please tell me some alternative for this
         while (status==JOB_STATUS.RUNNING) {
             Thread.sleep(1000);
 

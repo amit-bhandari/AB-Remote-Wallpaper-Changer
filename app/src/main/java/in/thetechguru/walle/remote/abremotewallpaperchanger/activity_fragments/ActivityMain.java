@@ -483,19 +483,16 @@ public class ActivityMain extends AppCompatActivity
                         .content(R.string.logout_warn)
                         .positiveText(R.string.signout)
                         .negativeText(getString(R.string.cancel))
-                        .onPositive(new MaterialDialog.SingleButtonCallback() {
-                            @Override
-                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                FirebaseUtil.getAuth().signOut();
-                                //remove token from server
-                                //FirebaseUtil.getNotificationTokenRef().child(MyApp.getUser().username).removeValue();
+                        .onPositive((dialog, which) -> {
+                            FirebaseUtil.getAuth().signOut();
+                            //remove token from server
+                            FirebaseUtil.getNotificationTokenRef().child(MyApp.getUser().username).removeValue();
 
-                                //remove history
-                                HistoryRepo.getInstance().nukeHistory();
+                            //remove history
+                            HistoryRepo.getInstance().nukeHistory();
 
-                                startActivity(new Intent(ActivityMain.this, ActivityLoginSignup.class));
-                                finish();
-                            }
+                            startActivity(new Intent(ActivityMain.this, ActivityLoginSignup.class));
+                            finish();
                         })
                         .show();
                 break;

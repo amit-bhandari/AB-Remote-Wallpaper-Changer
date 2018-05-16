@@ -45,6 +45,43 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     //priority queue job manager
     private JobManager mJobManager;
 
+    private void createJobManager(){
+        Configuration.Builder builder = new Configuration.Builder(this)
+                .minConsumerCount(1) // always keep at least one consumer alive
+                .maxConsumerCount(3) // up to 3 consumers at a time
+                .loadFactor(3) // 3 jobs per consumer
+                .consumerKeepAlive(120) // wait 2 minute
+                .customLogger(new CustomLogger() {
+                    private static final String TAG = "JOBS";
+                    @Override
+                    public boolean isDebugEnabled() {
+                        return true;
+                    }
+
+                    @Override
+                    public void d(String text, Object... args) {
+                        Log.d(TAG, String.format(text, args));
+                    }
+
+                    @Override
+                    public void e(Throwable t, String text, Object... args) {
+                        Log.e(TAG, String.format(text, args), t);
+                    }
+
+                    @Override
+                    public void e(String text, Object... args) {
+                        Log.e(TAG, String.format(text, args));
+                    }
+
+                    @Override
+                    public void v(String text, Object... args) {
+
+                    }
+                });
+
+        mJobManager = new JobManager(builder.build());
+    }
+
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
 
@@ -55,7 +92,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
             String status = remoteMessage.getData().get("notif_status");
             String fromUser = remoteMessage.getData().get("fromUser");
-            String wallpaper_url = remoteMessage.getData().get("id");
+            String wallpaper_url = remoteMessage.getData().get("id");    //i know, 'id' doesn't make sense, but I am too lazy to change it now. Maybe someday I will
 
             Log.d("MyFirebaseMessaging", "onMessageReceived: " + fromUser + " : " +status + " : " + wallpaper_url);
 
@@ -96,42 +133,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         mJobManager.addJobInBackground(new SetWallQueue(wallpaper_url, fromUser));
     }
 
-    private void createJobManager(){
-        Configuration.Builder builder = new Configuration.Builder(this)
-                .minConsumerCount(1) // always keep at least one consumer alive
-                .maxConsumerCount(3) // up to 3 consumers at a time
-                .loadFactor(3) // 3 jobs per consumer
-                .consumerKeepAlive(120) // wait 2 minute
-                .customLogger(new CustomLogger() {
-                    private static final String TAG = "JOBS";
-                    @Override
-                    public boolean isDebugEnabled() {
-                        return true;
-                    }
-
-                    @Override
-                    public void d(String text, Object... args) {
-                        Log.d(TAG, String.format(text, args));
-                    }
-
-                    @Override
-                    public void e(Throwable t, String text, Object... args) {
-                        Log.e(TAG, String.format(text, args), t);
-                    }
-
-                    @Override
-                    public void e(String text, Object... args) {
-                        Log.e(TAG, String.format(text, args));
-                    }
-
-                    @Override
-                    public void v(String text, Object... args) {
-
-                    }
-                });
-
-        mJobManager = new JobManager(builder.build());
-    }
+    //@todo better notifications
 
     private void postFriendRequest(String fromUser){
 
@@ -150,7 +152,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                         .setContentText(fromUser + " wants to connect with you! Once connected, both parties can change each others wallpaper remotely.")
                         .setContentIntent(pendingIntent);
 
-        int mNotificationId = 1;
+        int mNotificationId = new Random().nextInt();
         NotificationManager mNotifyMgr =
                 (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         if (mNotifyMgr != null) {
@@ -176,7 +178,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                         .setContentText(fromUser + " is your friend now. You can change wallpaper for him/her.")
                         .setContentIntent(pendingIntent);
 
-        int mNotificationId = 2;
+        int mNotificationId = new Random().nextInt();
         NotificationManager mNotifyMgr =
                 (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         if (mNotifyMgr != null) {
@@ -204,7 +206,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         //update history item for showing success
         HistoryRepo.getInstance().updateHistoryItem(wallpaperUrl, HistoryItem.STATUS.SUCCESS);
 
-        int mNotificationId = 3;
+        int mNotificationId = new Random().nextInt();
         NotificationManager mNotifyMgr =
                 (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         if (mNotifyMgr != null) {
@@ -226,13 +228,13 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                         .setSmallIcon(R.drawable.ic_wallpaper_black_24dp)
                         .setContentTitle("Wallpaper change failure")
                         .setAutoCancel(true)
-                        .setContentText("Failed changed wallpaper for " + fromUser )
+                        .setContentText("Failed to change wallpaper for " + fromUser )
                         .setContentIntent(pendingIntent);
 
-        //update history item for showing success
+        //update history item for showing failure
         HistoryRepo.getInstance().updateHistoryItem(wallpaperUrl, HistoryItem.STATUS.FAILURE);
 
-        int mNotificationId = 3;
+        int mNotificationId = new Random().nextInt();
         NotificationManager mNotifyMgr =
                 (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         if (mNotifyMgr != null) {

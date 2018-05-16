@@ -2,6 +2,8 @@ package in.thetechguru.walle.remote.abremotewallpaperchanger.activity_fragments;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -37,7 +39,13 @@ import com.google.firebase.storage.UploadTask;
 import com.google.gson.Gson;
 import com.theartofdev.edmodo.cropper.CropImage;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -67,6 +75,9 @@ import in.thetechguru.walle.remote.abremotewallpaperchanger.tasks.SendHttpsReque
  limitations under the License.
  */
 
+/**
+ * this activity launches when user tries to set up photo as wallpaper directly from gallery
+ */
 public class ActivitySetAsWallpaper extends AppCompatActivity {
 
     int clickedPosition;
@@ -93,16 +104,7 @@ public class ActivitySetAsWallpaper extends AppCompatActivity {
         Log.d("ActivitySetAsWallpaper", "onCreate: URI" + getIntent().getData());
         receivedUri = getIntent().getData();
 
-        setContentView(R.layout.activity_set_as_wallapaper);
-        ButterKnife.bind(this);
-        setSupportActionBar(toolbar);
-
-        // add back arrow to toolbar
-        if (getSupportActionBar() != null){
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
-        }
-        setTitle(getString(R.string.choose_friend));
+        activitySetup();
 
         if(MyApp.getUser()==null){
             final String user_json = MyApp.getPref().getString(getString(R.string.pref_user_obj),"");
@@ -119,8 +121,19 @@ public class ActivitySetAsWallpaper extends AppCompatActivity {
         adapter = new FriendListAdapter(this);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
+    }
 
+    private void activitySetup() {
+        setContentView(R.layout.activity_set_as_wallapaper);
+        ButterKnife.bind(this);
+        setSupportActionBar(toolbar);
 
+        // add back arrow to toolbar
+        if (getSupportActionBar() != null){
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
+        setTitle(getString(R.string.choose_friend));
     }
 
     @Override
@@ -141,6 +154,7 @@ public class ActivitySetAsWallpaper extends AppCompatActivity {
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
             if (resultCode == RESULT_OK) {
+                //upload photo
                 Uri mFileUri = result.getUri();
                 adapter.uploadPhoto(mFileUri);
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
@@ -172,15 +186,16 @@ public class ActivitySetAsWallpaper extends AppCompatActivity {
             new FriendListAdapter.GetFriendList().start();
         }
 
+        @NonNull
         @Override
-        public FriendListAdapter.MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        public FriendListAdapter.MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View view = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.item_added_friend, parent, false);
             return new FriendListAdapter.MyViewHolder(view);
         }
 
         @Override
-        public void onBindViewHolder(FriendListAdapter.MyViewHolder holder, int position) {
+        public void onBindViewHolder(@NonNull FriendListAdapter.MyViewHolder holder, int position) {
             //String mainText = users.get(position).display_name + " ("  + users.get(position).username +")";
             holder.textView.setText(users.get(position).display_name);
             if(users.get(position).block_status){
@@ -201,7 +216,47 @@ public class ActivitySetAsWallpaper extends AppCompatActivity {
             return users.size();
         }
 
-        private List<User> getList (){return users;}
+
+        //@todo use it to compress picture for free users
+        //have to pay for setting original picture
+
+        private Uri getCompressedFileUri(Uri originalUri){
+
+            String compressedFilePath = activity.getExternalCacheDir() +"/"+ UUID.randomUUID().toString();
+            Uri compressedUri = Uri.fromFile(new File(compressedFilePath));
+
+            try {
+                InputStream imageStream = null;
+
+                imageStream = getContentResolver().openInputStream(
+                        originalUri);
+
+                Bitmap bmp = BitmapFactory.decodeStream(imageStream);
+
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                bmp.compress(Bitmap.CompressFormat.PNG, 100, stream);
+
+                OutputStream outputStream = new FileOutputStream(compressedFilePath);
+
+                stream.writeTo(outputStream);
+
+                try {
+                    stream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }catch (Exception e){
+                Log.d("FriendListAdapter", "getCompressedFileUri: " + e.getLocalizedMessage());
+                return  null;
+            }
+
+            Log.d("FriendListAdapter", "getCompressedFileUri: "
+                    + new File(activity.getExternalCacheDir() +"/"+ UUID.randomUUID().toString()).length());
+
+            return compressedUri;
+
+        }
 
         private void uploadPhoto(final Uri mFileUri){
 
@@ -218,12 +273,9 @@ public class ActivitySetAsWallpaper extends AppCompatActivity {
                         .autoDismiss(false)
                         .cancelable(false)
                         .negativeText(R.string.cancel)
-                        .onNegative(new MaterialDialog.SingleButtonCallback() {
-                            @Override
-                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                uploadTask.cancel();
-                                dialog.dismiss();
-                            }
+                        .onNegative((dialog, which) -> {
+                            uploadTask.cancel();
+                            dialog.dismiss();
                         })
                         .progress(true, 0);
 
@@ -232,64 +284,55 @@ public class ActivitySetAsWallpaper extends AppCompatActivity {
 
             final MaterialDialog dialog = mDialog;
             uploadTask
-                    .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-                            int progress = (int) ((100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount());
-                            if(dialog!=null)
-                                dialog.setContent(getString(R.string.photo_upload_content) + " " + progress + " %");
-                            Log.d("FragmentFriends", "onProgress: " + progress);
+                    .addOnProgressListener(taskSnapshot -> {
+                        int progress = (int) ((100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount());
+                        if(dialog!=null)
+                            dialog.setContent(getString(R.string.photo_upload_content) + " " + progress + " %");
+                        Log.d("FragmentFriends", "onProgress: " + progress);
+                    }).addOnFailureListener(exception -> {
+                        if(dialog!=null && dialog.isShowing()) dialog.dismiss();
+                        Toast.makeText(MyApp.getContext(), "File upload failure", Toast.LENGTH_SHORT).show();
+                    }).addOnSuccessListener(taskSnapshot -> {
+                        Uri downloadUrl = taskSnapshot.getDownloadUrl();
+                        if (downloadUrl != null) {
+                            Log.d("FragmentFriends", "onSuccess: " + downloadUrl.toString());
                         }
-                    }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception exception) {
-                    if(dialog!=null && dialog.isShowing()) dialog.dismiss();
-                    Toast.makeText(MyApp.getContext(), "File upload failure", Toast.LENGTH_SHORT).show();
-                }
-            }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                    Uri downloadUrl = taskSnapshot.getDownloadUrl();
-                    if (downloadUrl != null) {
-                        Log.d("FragmentFriends", "onSuccess: " + downloadUrl.toString());
-                    }
-                    Toast.makeText(MyApp.getContext(), "Uploaded successfully", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MyApp.getContext(), "Uploaded successfully", Toast.LENGTH_SHORT).show();
 
-                    //add history item in
-                    HistoryItem item = new HistoryItem(randomId, "self", users.get(clickedPosition).username,System.currentTimeMillis(), mFileUri.toString());
-                    HistoryRepo.getInstance().putHistoryItem(item);
+                        //add history item in
+                        HistoryItem item = new HistoryItem(randomId, "self", users.get(clickedPosition).username,System.currentTimeMillis(), mFileUri.toString());
+                        HistoryRepo.getInstance().putHistoryItem(item);
 
-                    //notify firebase function for sending fcm to userName
-                    HttpsRequestPayload payload = new HttpsRequestPayload(users.get(clickedPosition).username
-                            , MyApp.getUser().username
-                            , HttpsRequestPayload.STATUS_CODE.CHANGE_WALLPAPER
-                            , randomId);
-                    new SendHttpsRequest(payload).start();
+                        //notify firebase function for sending fcm to userName
+                        HttpsRequestPayload payload = new HttpsRequestPayload(users.get(clickedPosition).username
+                                , MyApp.getUser().username
+                                , HttpsRequestPayload.STATUS_CODE.CHANGE_WALLPAPER
+                                , randomId);
+                        new SendHttpsRequest(payload).start();
 
-                    //update overall count of wallpaper changes, just for show off.
-                    FirebaseUtil.getOverallChangeCountRef().addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            try {
-                                if (dataSnapshot.getValue() == null) {
-                                    FirebaseUtil.getOverallChangeCountRef().setValue(1L);
-                                } else {
-                                    FirebaseUtil.getOverallChangeCountRef().setValue((Long) dataSnapshot.getValue() + 1L);
+                        //update overall count of wallpaper changes(being tried via app), just for show off.
+                        FirebaseUtil.getOverallChangeCountRef().addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                try {
+                                    if (dataSnapshot.getValue() == null) {
+                                        FirebaseUtil.getOverallChangeCountRef().setValue(1L);
+                                    } else {
+                                        FirebaseUtil.getOverallChangeCountRef().setValue((Long) dataSnapshot.getValue() + 1L);
+                                    }
+                                } catch (Exception ignored) {
                                 }
-                            } catch (Exception ignored) {
                             }
-                        }
 
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
 
-                        }
+                            }
+                        });
+
+                        if(dialog!=null && dialog.isShowing()) dialog.dismiss();
+                        finish();
                     });
-
-                    if(dialog!=null && dialog.isShowing()) dialog.dismiss();
-                    finish();
-                }
-            });
 
             if(dialog!=null)
                 dialog.show();
@@ -328,85 +371,79 @@ public class ActivitySetAsWallpaper extends AppCompatActivity {
             }
 
             private Runnable getRunnable(){
-                return new Runnable() {
-                    @Override
-                    public void run(){
+                return () -> {
 
-                        if(!UtilityFun.isConnectedToInternet()){
-                            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    progressBar.setVisibility(View.INVISIBLE);
-                                    statusText.setVisibility(View.VISIBLE);
-                                    statusText.setText(R.string.error_no_network_swipe_down);
-                                    swipeRefreshLayout.setRefreshing(false);
-                                }
-                            });
-                            return;
-                        }
+                    if(!UtilityFun.isConnectedToInternet()){
+                        new Handler(Looper.getMainLooper()).post(() -> {
+                            progressBar.setVisibility(View.INVISIBLE);
+                            statusText.setVisibility(View.VISIBLE);
+                            statusText.setText(R.string.error_no_network_swipe_down);
+                            swipeRefreshLayout.setRefreshing(false);
+                        });
+                        return;
+                    }
 
-                        FirebaseUtil.getConfirmedRef().addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                if(dataSnapshot.getChildrenCount()<=0){
-                                    progressBar.setVisibility(View.INVISIBLE);
-                                    statusText.setVisibility(View.VISIBLE);
-                                    swipeRefreshLayout.setRefreshing(false);
-                                    statusText.setText(R.string.error_zero_friends);
-                                }
-                                for(DataSnapshot snap : dataSnapshot.getChildren()){
-                                    final String user_name  = snap.getKey();
-                                    FirebaseUtil.getUsernamesReference().child(user_name).addListenerForSingleValueEvent(new ValueEventListener() {
-                                        @Override
-                                        public void onDataChange(DataSnapshot dataSnapshot) {
-                                            String uid = dataSnapshot.getValue(String.class);
-                                            if(uid==null){
-                                                return;
-                                            }
-                                            FirebaseUtil.getUsersReference().child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
-                                                @Override
-                                                public void onDataChange(DataSnapshot dataSnapshot) {
-                                                    User user = dataSnapshot.getValue(User.class);
-                                                    users.add(user);
-                                                    statusText.setVisibility(View.INVISIBLE);
-                                                    recyclerView.setVisibility(View.VISIBLE);
-                                                    progressBar.setVisibility(View.INVISIBLE);
-                                                    swipeRefreshLayout.setRefreshing(false);
-                                                    notifyDataSetChanged();
-                                                }
-
-                                                @Override
-                                                public void onCancelled(DatabaseError databaseError) {
-                                                    progressBar.setVisibility(View.INVISIBLE);
-                                                    statusText.setVisibility(View.VISIBLE);
-                                                    swipeRefreshLayout.setRefreshing(false);
-                                                    statusText.setText(R.string.friend_list_fetch_unknown_error);
-                                                }
-                                            });
-                                        }
-
-                                        @Override
-                                        public void onCancelled(DatabaseError databaseError) {
-                                            progressBar.setVisibility(View.INVISIBLE);
-                                            statusText.setVisibility(View.VISIBLE);
-                                            swipeRefreshLayout.setRefreshing(false);
-                                            statusText.setText(R.string.friend_list_fetch_unknown_error);
-                                        }
-                                    });
-                                }
-                            }
-
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-                                Log.d("GetBlockedList", "onCancelled: Error getting friend list");
+                    FirebaseUtil.getConfirmedRef().addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            if(dataSnapshot.getChildrenCount()<=0){
                                 progressBar.setVisibility(View.INVISIBLE);
                                 statusText.setVisibility(View.VISIBLE);
                                 swipeRefreshLayout.setRefreshing(false);
-                                statusText.setText(R.string.friend_list_fetch_unknown_error);
+                                statusText.setText(R.string.error_zero_friends);
                             }
-                        });
+                            for(DataSnapshot snap : dataSnapshot.getChildren()){
+                                final String user_name  = snap.getKey();
+                                FirebaseUtil.getUsernamesReference().child(user_name).addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        String uid = dataSnapshot.getValue(String.class);
+                                        if(uid==null){
+                                            return;
+                                        }
+                                        FirebaseUtil.getUsersReference().child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                                User user = dataSnapshot.getValue(User.class);
+                                                users.add(user);
+                                                statusText.setVisibility(View.INVISIBLE);
+                                                recyclerView.setVisibility(View.VISIBLE);
+                                                progressBar.setVisibility(View.INVISIBLE);
+                                                swipeRefreshLayout.setRefreshing(false);
+                                                notifyDataSetChanged();
+                                            }
 
-                    }
+                                            @Override
+                                            public void onCancelled(DatabaseError databaseError) {
+                                                progressBar.setVisibility(View.INVISIBLE);
+                                                statusText.setVisibility(View.VISIBLE);
+                                                swipeRefreshLayout.setRefreshing(false);
+                                                statusText.setText(R.string.friend_list_fetch_unknown_error);
+                                            }
+                                        });
+                                    }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+                                        progressBar.setVisibility(View.INVISIBLE);
+                                        statusText.setVisibility(View.VISIBLE);
+                                        swipeRefreshLayout.setRefreshing(false);
+                                        statusText.setText(R.string.friend_list_fetch_unknown_error);
+                                    }
+                                });
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+                            Log.d("GetBlockedList", "onCancelled: Error getting friend list");
+                            progressBar.setVisibility(View.INVISIBLE);
+                            statusText.setVisibility(View.VISIBLE);
+                            swipeRefreshLayout.setRefreshing(false);
+                            statusText.setText(R.string.friend_list_fetch_unknown_error);
+                        }
+                    });
+
                 };
             }
         }
