@@ -118,7 +118,6 @@ public class ActivityMain extends AppCompatActivity
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-
         if(FirebaseUtil.getCurrentUser()==null){
             startActivity(new Intent(this, ActivityLoginSignup.class));
             finish();
@@ -383,13 +382,12 @@ public class ActivityMain extends AppCompatActivity
         blockSwitch = block_switch.getActionView().findViewById(R.id.block_switch);
         if(blockSwitch!=null){
             blockSwitch.setEnabled(true);
+
             if(MyApp.getUser()!=null){
                 blockSwitch.setChecked(MyApp.getUser().block_status);
             }
-        }
-        blockSwitch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+
+            blockSwitch.setOnClickListener(view -> {
                 if(blockSwitch.isChecked()){
                     //block user wallpaper changes
                     new MaterialDialog.Builder(ActivityMain.this)
@@ -397,26 +395,18 @@ public class ActivityMain extends AppCompatActivity
                             .content(R.string.dialog_block_mode_content)
                             .positiveText(R.string.dialog_block_mode_pos)
                             .negativeText(getString(R.string.cancel))
-                            .onPositive(new MaterialDialog.SingleButtonCallback() {
-                                @Override
-                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                    FirebaseUtil.getBlockStatusRef(FirebaseUtil.getCurrentUser().getUid()).setValue(true);
-                                    final String user_json = MyApp.getPref().getString(getString(R.string.pref_user_obj),"");
-                                    User user = new Gson().fromJson(user_json, User.class);
-                                    user.block_status = true;
-                                    MyApp.getPref().edit().putString(getString(R.string.pref_user_obj),new Gson().toJson(user)).apply();
-                                    MyApp.setUser(user);
-                                    setErrorScreen(R.string.error_block_mode);
-                                    statusText.setClickable(false);
-                                    revealBlockView(true);
-                                }
+                            .onPositive((dialog, which) -> {
+                                FirebaseUtil.getBlockStatusRef(FirebaseUtil.getCurrentUser().getUid()).setValue(true);
+                                final String user_json = MyApp.getPref().getString(getString(R.string.pref_user_obj),"");
+                                User user = new Gson().fromJson(user_json, User.class);
+                                user.block_status = true;
+                                MyApp.getPref().edit().putString(getString(R.string.pref_user_obj),new Gson().toJson(user)).apply();
+                                MyApp.setUser(user);
+                                setErrorScreen(R.string.error_block_mode);
+                                statusText.setClickable(false);
+                                revealBlockView(true);
                             })
-                            .onNegative(new MaterialDialog.SingleButtonCallback() {
-                                @Override
-                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                    blockSwitch.setChecked(false);
-                                }
-                            })
+                            .onNegative((dialog, which) -> blockSwitch.setChecked(false))
                             .cancelable(false)
                             .show();
                 }else {
@@ -428,11 +418,15 @@ public class ActivityMain extends AppCompatActivity
                     MyApp.setUser(user);
                     MyApp.getPref().edit().putString(getString(R.string.pref_user_obj),new Gson().toJson(user)).apply();
                     statusText.setClickable(true);
-                    setMainScreen();
                     revealBlockView(false);
+
+                    //if not restarted activity, butter knife binding was not happening for some reason in fragments
+                    finish();
+                    startActivity(new Intent(this, ActivityMain.class));
                 }
-            }
-        });
+            });
+        }
+
         return true;
     }
 

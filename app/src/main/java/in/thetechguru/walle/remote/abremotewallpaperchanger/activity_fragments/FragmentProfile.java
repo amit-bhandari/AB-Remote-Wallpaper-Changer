@@ -109,12 +109,7 @@ public class FragmentProfile extends Fragment {
         progressBar.setVisibility(View.VISIBLE);
 
         uploadTask
-                .addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception exception) {
-                    Toast.makeText(MyApp.getContext(), "Profile photo update failed.", Toast.LENGTH_SHORT).show();
-                }
-                }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                .addOnFailureListener(exception -> Toast.makeText(MyApp.getContext(), "Profile photo update failed.", Toast.LENGTH_SHORT).show()).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                         final Uri downloadUrl = taskSnapshot.getDownloadUrl();
@@ -122,27 +117,24 @@ public class FragmentProfile extends Fragment {
                             Log.d("FragmentProfile", "onSuccess: " + downloadUrl.toString());
                             FirebaseUtil.getPhotoUrlRef(FirebaseUtil.getCurrentUser().getUid())
                                     .setValue(downloadUrl.toString())
-                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<Void> task) {
-                                            final String user_json = MyApp.getPref().getString(getString(R.string.pref_user_obj),"");
-                                            if(task.getException()==null && !user_json.equals("")) {
-                                                User user = new Gson().fromJson(user_json, User.class);
-                                                user.pic_url = downloadUrl.toString();
-                                                MyApp.setUser(user);
-                                                MyApp.getPref().edit().putString(getString(R.string.pref_user_obj),new Gson().toJson(user)).apply();
-                                                Toast.makeText(MyApp.getContext(), "Profile photo changed successfully", Toast.LENGTH_SHORT).show();
-                                                progressBar.setVisibility(View.INVISIBLE);
-                                                if(getActivity()!=null) {
-                                                    Glide.with(getActivity())
-                                                            .load(downloadUrl)
-                                                            .placeholder(R.drawable.person_blue)
-                                                            .into(profile_photo);
-                                                }
-                                            }else {
-                                                progressBar.setVisibility(View.INVISIBLE);
-                                                Toast.makeText(MyApp.getContext(), "Error changing profile photo", Toast.LENGTH_SHORT).show();
+                                    .addOnCompleteListener(task -> {
+                                        final String user_json = MyApp.getPref().getString(getString(R.string.pref_user_obj),"");
+                                        if(task.getException()==null && !user_json.equals("")) {
+                                            User user = new Gson().fromJson(user_json, User.class);
+                                            user.pic_url = downloadUrl.toString();
+                                            MyApp.setUser(user);
+                                            MyApp.getPref().edit().putString(getString(R.string.pref_user_obj),new Gson().toJson(user)).apply();
+                                            Toast.makeText(MyApp.getContext(), "Profile photo changed successfully", Toast.LENGTH_SHORT).show();
+                                            progressBar.setVisibility(View.INVISIBLE);
+                                            if(getActivity()!=null) {
+                                                Glide.with(getActivity())
+                                                        .load(downloadUrl)
+                                                        .placeholder(R.drawable.person_blue)
+                                                        .into(profile_photo);
                                             }
+                                        }else {
+                                            progressBar.setVisibility(View.INVISIBLE);
+                                            Toast.makeText(MyApp.getContext(), "Error changing profile photo", Toast.LENGTH_SHORT).show();
                                         }
                                     });
                         }
