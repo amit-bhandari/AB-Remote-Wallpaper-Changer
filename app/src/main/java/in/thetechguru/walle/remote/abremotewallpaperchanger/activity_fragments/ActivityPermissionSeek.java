@@ -18,6 +18,7 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.BuildConfig;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.R;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.preferences.Preferences;
+import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 /**
  Copyright 2017 Amit Bhandari AB
@@ -53,7 +54,7 @@ public class ActivityPermissionSeek extends AppCompatActivity {
             }
         }else {
             startActivity(new Intent(this, ActivityMain.class));
-            //finish();
+            finish();
         }
 
         if(BuildConfig.DEBUG){
@@ -122,4 +123,8 @@ public class ActivityPermissionSeek extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
+    }
 }

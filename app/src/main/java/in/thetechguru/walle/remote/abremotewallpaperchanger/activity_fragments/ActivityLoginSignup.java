@@ -1,5 +1,6 @@
 package in.thetechguru.walle.remote.abremotewallpaperchanger.activity_fragments;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -20,6 +21,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.R;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.helpers.ViewPagerAdapter;
+import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 /**
  Copyright 2017 Amit Bhandari AB
@@ -68,6 +70,11 @@ public class ActivityLoginSignup extends AppCompatActivity {
         tabLayout.setupWithViewPager(viewPager);
 
         title.setText(getString(R.string.app_name));
+    }
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
     }
 
     private void setupViewPager(ViewPager viewPager) {

@@ -47,12 +47,21 @@
         android:textSize="12sp" />
 
     <TextView
+        android:id="@+id/tap_to_copy"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/username"
+        android:layout_centerHorizontal="true"
+        android:text="@string/tap_to_copy"
+        android:textSize="12sp" />
+
+    <TextView
         android:id="@+id/display_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/tap_to_change"
+        android:layout_below="@+id/tap_to_copy"
+        android:layout_marginTop="13dp"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="30dp"
         android:textColor="@color/white"
         android:text="@string/hint_display_name"
         android:textSize="20sp" />
@@ -60,11 +69,11 @@
     <TextView
         android:id="@+id/username"
         android:layout_width="wrap_content"
+        android:layout_marginTop="30dp"
         android:textColor="@color/white"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/display_name"
+        android:layout_below="@+id/tap_to_change"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="13dp"
         android:textIsSelectable="true"
         android:text="@string/username_text"
         android:textSize="20sp" />
@@ -74,7 +83,7 @@
         android:id="@+id/email_id"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/username"
+        android:layout_below="@+id/display_name"
         android:layout_centerHorizontal="true"
         android:textColor="@color/white"
         android:layout_marginTop="13dp"

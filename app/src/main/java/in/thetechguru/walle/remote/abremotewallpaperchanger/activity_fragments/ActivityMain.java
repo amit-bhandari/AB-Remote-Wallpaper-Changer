@@ -65,6 +65,7 @@ import in.thetechguru.walle.remote.abremotewallpaperchanger.helpers.ViewPagerAda
 import in.thetechguru.walle.remote.abremotewallpaperchanger.model.User;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.preferences.Preferences;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.tasks.SendHttpsRequest;
+import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 /**
  Copyright 2017 Amit Bhandari AB
@@ -538,7 +539,10 @@ public class ActivityMain extends AppCompatActivity
         return true;
     }
 
-
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
+    }
 
     private void termsOfUsage(){
         MaterialDialog dialog =  new MaterialDialog.Builder(this)

@@ -1,6 +1,7 @@
 package in.thetechguru.walle.remote.abremotewallpaperchanger.activity_fragments;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -61,6 +62,7 @@ import in.thetechguru.walle.remote.abremotewallpaperchanger.history.HistoryRepo;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.model.HttpsRequestPayload;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.model.User;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.tasks.SendHttpsRequest;
+import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 /**
  Copyright 2017 Amit Bhandari AB
@@ -166,6 +168,11 @@ public class ActivitySetAsWallpaper extends AppCompatActivity {
                 }
             }
         }
+    }
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
     }
 
     class FriendListAdapter extends RecyclerView.Adapter<FriendListAdapter.MyViewHolder> {

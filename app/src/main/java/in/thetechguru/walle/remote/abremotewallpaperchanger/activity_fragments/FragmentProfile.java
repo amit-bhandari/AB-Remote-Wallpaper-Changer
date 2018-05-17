@@ -231,4 +231,9 @@ public class FragmentProfile extends Fragment {
             }
         }
     }
+
+    @OnClick(R.id.tap_to_copy)
+    void onClickTapToCopy(){
+        onClickUsername();
+    }
 }

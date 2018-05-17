@@ -1,5 +1,6 @@
 package in.thetechguru.walle.remote.abremotewallpaperchanger.activity_fragments;
 
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -18,6 +19,7 @@ import com.mikepenz.aboutlibraries.LibsBuilder;
 
 import in.thetechguru.walle.remote.abremotewallpaperchanger.MyApp;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.R;
+import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 /**
  Copyright 2017 Amit Bhandari AB
@@ -86,6 +88,11 @@ public class ActivityAbout extends AppCompatActivity {
                 break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
     }
 
     private void howItWorks(){

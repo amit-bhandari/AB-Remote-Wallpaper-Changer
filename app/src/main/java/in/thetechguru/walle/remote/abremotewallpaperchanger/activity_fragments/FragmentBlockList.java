@@ -45,6 +45,8 @@ import in.thetechguru.walle.remote.abremotewallpaperchanger.helpers.FirebaseUtil
 import in.thetechguru.walle.remote.abremotewallpaperchanger.helpers.UtilityFun;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.model.Constants;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.model.User;
+import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
+
 /**
  Copyright 2017 Amit Bhandari AB
  Licensed under the Apache License, Version 2.0 (the "License");

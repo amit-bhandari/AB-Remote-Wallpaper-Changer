@@ -1,6 +1,7 @@
 package in.thetechguru.walle.remote.abremotewallpaperchanger.activity_fragments;
 
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -17,6 +18,7 @@ import com.mikepenz.aboutlibraries.LibsBuilder;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.R;
+import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class ActivityFAQ extends AppCompatActivity {
 
@@ -49,6 +51,11 @@ public class ActivityFAQ extends AppCompatActivity {
                 break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
     }
 
     @OnClick(R.id.button_contact)

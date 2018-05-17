@@ -104,6 +104,7 @@
     <string name="title_ab_music">AB Music</string>
     <string name="title_find_me_on_instagram">Find me on Instagram</string>
     <string name="tap_to_change">Tap to change</string>
+    <string name="tap_to_copy">Tap to copy username</string>
     <string name="error_invalid_display_name">Invalid Name. Should be minimum 6 characters.</string>
     <string name="title_clear_history">Clear History</string>
     <string name="status_empty_history">Empty history.</string>

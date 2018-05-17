@@ -6,7 +6,7 @@ import android.preference.PreferenceManager;
 public class Preferences {
 
     public static boolean isAdsRemoved(Context context){
-        return get(context, "is_ad_removed",true);
+        return get(context, "is_ad_removed",false);
     }
 
     public static void setAdsRemoved(Context context, boolean value){

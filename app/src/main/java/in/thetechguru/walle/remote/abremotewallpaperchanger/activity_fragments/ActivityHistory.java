@@ -1,6 +1,7 @@
 package in.thetechguru.walle.remote.abremotewallpaperchanger.activity_fragments;
 
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -41,6 +42,7 @@ import in.thetechguru.walle.remote.abremotewallpaperchanger.helpers.UtilityFun;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.history.HistoryItem;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.history.HistoryRepo;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.preferences.Preferences;
+import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 /**
  Copyright 2017 Amit Bhandari AB
@@ -163,6 +165,11 @@ public class ActivityHistory extends AppCompatActivity {
                 break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
     }
 
     class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
