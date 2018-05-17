@@ -690,80 +690,84 @@ public class ActivityMain extends AppCompatActivity
                 .autoDismiss(false)
                 .customView(R.layout.add_friend_dialog_custom_view, false)
                 .positiveText(R.string.add_friend_pos)
-                .onPositive(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull final MaterialDialog dialog, @NonNull DialogAction which) {
-                        dialog.getActionButton(DialogAction.POSITIVE).setEnabled(false);
-                        View view = dialog.getCustomView();
-                        if(view==null) return;
-                        final EditText inputId = view.findViewById(R.id.add_friend_user_id);
-                        final ProgressBar progressBar = view.findViewById(R.id.add_friend_progress);
-                        progressBar.setVisibility(View.VISIBLE);
+                .onPositive((dialog, which) -> {
+                    dialog.getActionButton(DialogAction.POSITIVE).setEnabled(false);
+                    View view = dialog.getCustomView();
+                    if(view==null) return;
+                    final EditText inputId = view.findViewById(R.id.add_friend_user_id);
+                    final ProgressBar progressBar = view.findViewById(R.id.add_friend_progress);
+                    progressBar.setVisibility(View.VISIBLE);
 
-                        //@TODO validate user name
-                        final String userName = inputId.getText().toString().trim();
+                    final String userName = inputId.getText().toString().trim();
 
-                        if(userName.isEmpty()){
-                            inputId.setError(getString(R.string.empty_username_error));
-                            dialog.getActionButton(DialogAction.POSITIVE).setEnabled(true);
-                            progressBar.setVisibility(View.INVISIBLE);
-                            return;
-                        }
+                    if(userName.isEmpty()){
+                        inputId.setError(getString(R.string.empty_username_error));
+                        dialog.getActionButton(DialogAction.POSITIVE).setEnabled(true);
+                        progressBar.setVisibility(View.INVISIBLE);
+                        return;
+                    }
 
-                        if(userName.equals(MyApp.getUser().username)){
-                            inputId.setError(getString(R.string.error_self_username));
-                            dialog.getActionButton(DialogAction.POSITIVE).setEnabled(true);
-                            progressBar.setVisibility(View.INVISIBLE);
-                            return;
-                        }
+                    if(userName.equals(MyApp.getUser().username)){
+                        inputId.setError(getString(R.string.error_self_username));
+                        dialog.getActionButton(DialogAction.POSITIVE).setEnabled(true);
+                        progressBar.setVisibility(View.INVISIBLE);
+                        return;
+                    }
 
-                        //check if already friend
-                        //@todo remove hardcoding 0
-                        if(((FragmentFriends)adapter.get(0)).isFriend(userName)){
-                            inputId.setError(getString(R.string.friend_already_added_error));
-                            dialog.getActionButton(DialogAction.POSITIVE).setEnabled(true);
-                            progressBar.setVisibility(View.INVISIBLE);
-                            return;
-                        }
+                    if(userName.contains(".") || userName.contains("#") || userName.contains("$")
+                            || userName.contains("[") || userName.contains("]")){
+                        inputId.setError(getString(R.string.invalid_character_username_error));
+                        dialog.getActionButton(DialogAction.POSITIVE).setEnabled(true);
+                        progressBar.setVisibility(View.INVISIBLE);
+                        return;
+                    }
 
-                        FirebaseUtil.getUsernamesReference().child(userName).addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                if(dataSnapshot.exists()){
-                                    Log.d("ActivityMain", "onDataChange: valid selfUser id : " + dataSnapshot.getKey());
+                    //check if already friend
+                    //@todo remove hardcoding 0
+                    if(((FragmentFriends)adapter.get(0)).isFriend(userName)){
+                        inputId.setError(getString(R.string.friend_already_added_error));
+                        dialog.getActionButton(DialogAction.POSITIVE).setEnabled(true);
+                        progressBar.setVisibility(View.INVISIBLE);
+                        return;
+                    }
 
-                                    //Create request token
-                                    FirebaseUtil.getTokenReference().child(MyApp.getUser().username).child("pending")
-                                            .child(userName).setValue(true);
-                                    FirebaseUtil.getTokenReference().child(userName).child("requests")
-                                            .child(MyApp.getUser().username).setValue(true);
+                    FirebaseUtil.getUsernamesReference().child(userName).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            if(dataSnapshot.exists()){
+                                Log.d("ActivityMain", "onDataChange: valid selfUser id : " + dataSnapshot.getKey());
 
-                                    //notify firebase function for sending fcm to userName
-                                    HttpsRequestPayload payload = new HttpsRequestPayload(userName
-                                            , MyApp.getUser().username
-                                            ,HttpsRequestPayload.STATUS_CODE.FRIEND_REQUEST
-                                            ,null);
-                                    new SendHttpsRequest(payload).start();
+                                //Create request token
+                                FirebaseUtil.getTokenReference().child(MyApp.getUser().username).child("pending")
+                                        .child(userName).setValue(true);
+                                FirebaseUtil.getTokenReference().child(userName).child("requests")
+                                        .child(MyApp.getUser().username).setValue(true);
 
-                                    dialog.dismiss();
-                                    Toast.makeText(ActivityMain.this, R.string.friend_request_sent_toast, Toast.LENGTH_SHORT).show();
-                                }else {
-                                    invalidUserId();
-                                }
-                            }
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
+                                //notify firebase function for sending fcm to userName
+                                HttpsRequestPayload payload = new HttpsRequestPayload(userName
+                                        , MyApp.getUser().username
+                                        ,HttpsRequestPayload.STATUS_CODE.FRIEND_REQUEST
+                                        ,null);
+                                new SendHttpsRequest(payload).start();
+
+                                dialog.dismiss();
+                                Toast.makeText(ActivityMain.this, R.string.friend_request_sent_toast, Toast.LENGTH_SHORT).show();
+                            }else {
                                 invalidUserId();
                             }
+                        }
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+                            invalidUserId();
+                        }
 
-                            private void invalidUserId() {
-                                Log.d("ActivityMain", "onCancelled: Invalid user id");
-                                inputId.setError("Invalid user Id");
-                                dialog.getActionButton(DialogAction.POSITIVE).setEnabled(true);
-                                progressBar.setVisibility(View.INVISIBLE);
-                            }
-                        });
-                    }
+                        private void invalidUserId() {
+                            Log.d("ActivityMain", "onCancelled: Invalid user id");
+                            inputId.setError("Invalid user Id");
+                            dialog.getActionButton(DialogAction.POSITIVE).setEnabled(true);
+                            progressBar.setVisibility(View.INVISIBLE);
+                        }
+                    });
                 });
 
 
