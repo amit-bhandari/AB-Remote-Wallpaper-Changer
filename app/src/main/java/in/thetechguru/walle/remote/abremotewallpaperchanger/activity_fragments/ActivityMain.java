@@ -626,8 +626,8 @@ public class ActivityMain extends AppCompatActivity
                 "mailto",getString(R.string.au_email_id), null));
         String[] address = new String[]{getString(R.string.au_email_id)};
         emailIntent.putExtra(Intent.EXTRA_EMAIL, address);
-        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Feedback for " + myDeviceModel);
-        emailIntent.putExtra(Intent.EXTRA_TEXT, "Hello AndroidDevs, \n\n");
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Feedback for AB Remote Wallpaper Changer : Device " + myDeviceModel);
+        emailIntent.putExtra(Intent.EXTRA_TEXT, "Hello AB, \n\n");
         startActivity(Intent.createChooser(emailIntent, "Send Feedback"));
     }
 
