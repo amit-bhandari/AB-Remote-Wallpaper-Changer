@@ -95,6 +95,7 @@ public *;
 }
 
 -dontwarn jp.wasabeef.glide.transformations.**
+-dontwarn com.birbit.android.jobqueue.**
 
 -keep class * extends android.app.Activity
 -assumenosideeffects class android.util.Log {

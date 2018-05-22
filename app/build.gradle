@@ -6,7 +6,7 @@ android {
         applicationId "in.thetechguru.walle.remote.abremotewallpaperchanger"
         minSdkVersion 21
         targetSdkVersion 27
-        versionCode 11
+        versionCode 15
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
