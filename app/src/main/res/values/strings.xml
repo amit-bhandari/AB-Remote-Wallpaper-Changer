@@ -114,7 +114,7 @@
     <string name="history_clear_warning">This is irreversible process and data will be permanently deleted.</string>
 
 
-    <string name="unblock_warn">Unblock %1$s ?</string>
+    <string name="unblock_warn">Unblock %1$s?</string>
     <string name="unblock">Unblock</string>
 
     <string name="block_warn">Block %1$s ?</string>
