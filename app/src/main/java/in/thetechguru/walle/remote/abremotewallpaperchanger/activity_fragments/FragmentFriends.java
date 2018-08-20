@@ -245,6 +245,7 @@ public class FragmentFriends extends Fragment implements SwipeRefreshLayout.OnRe
                     CropImage.activity()
                             .setGuidelines(CropImageView.Guidelines.ON)
                             .setOutputUri(myUri)
+                            .setOutputCompressQuality(70)
                             //.setAspectRatio(1,1)
                             //.setOutputCompressQuality(5)
                             .start(activity);
