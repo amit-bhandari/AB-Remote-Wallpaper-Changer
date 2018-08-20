@@ -24,7 +24,6 @@ import in.thetechguru.walle.remote.abremotewallpaperchanger.history.HistoryRepo;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.model.Constants;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.model.HttpsRequestPayload;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.model.User;
-import in.thetechguru.walle.remote.abremotewallpaperchanger.tasks.SetWallQueue;
 import in.thetechguru.walle.remote.abremotewallpaperchanger.tasks.SetWallpaper;
 
 /**
@@ -130,7 +129,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         if(mJobManager==null) {
             createJobManager();
         }
-        mJobManager.addJobInBackground(new SetWallQueue(wallpaper_url, fromUser));
+        mJobManager.addJobInBackground(new SetWallpaper(wallpaper_url, fromUser));
     }
 
     //@todo better notifications
