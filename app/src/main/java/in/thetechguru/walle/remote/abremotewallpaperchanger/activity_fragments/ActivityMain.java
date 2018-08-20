@@ -10,6 +10,7 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
@@ -103,6 +104,9 @@ public class ActivityMain extends AppCompatActivity
     @BindView(R.id.adView) AdView mAdView;
 
     private ViewPagerAdapter adapter;
+
+    private boolean backPressedTwice = false;
+    private Handler mHandler = new Handler();
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -367,10 +371,19 @@ public class ActivityMain extends AppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            Intent startMain = new Intent(Intent.ACTION_MAIN);
-            startMain.addCategory(Intent.CATEGORY_HOME);
-            startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(startMain);
+            if(backPressedTwice){
+                super.onBackPressed();
+                return;
+            }
+
+            backPressedTwice = true;
+            Toast.makeText(this, "Press back again to exit", Toast.LENGTH_SHORT).show();
+            mHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    backPressedTwice = false;
+                }
+            }, 2000);
         }
     }
 
