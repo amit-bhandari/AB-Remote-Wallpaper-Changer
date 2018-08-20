@@ -15,7 +15,7 @@ apply plugin: 'com.github.triplet.play'
 
 
 // Load keystore
-def keystorePropertiesFile = rootProject.file("/home/amit/StudioProjects/trash/AB-Remote-Wallpaper-Changer/keystore.properties")
+def keystorePropertiesFile = rootProject.file("/home/amit/studioprojects/remote-ab/keystore.properties")
 def keystoreProperties = new Properties()
 keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
@@ -70,7 +70,7 @@ dependencies {
     implementation 'com.android.support:customtabs:27.1.1'
     implementation 'com.android.support:design:27.1.1'
 
-    implementation 'com.android.support.constraint:constraint-layout:1.1.0'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.2'
     compile 'com.android.support:cardview-v7:27.1.1'
 
     testImplementation 'junit:junit:4.12'
@@ -112,8 +112,8 @@ dependencies {
     compile 'com.theartofdev.edmodo:android-image-cropper:2.6.0'
 
     // Room
-    implementation "android.arch.persistence.room:runtime:1.1.0"
-    annotationProcessor "android.arch.persistence.room:compiler:1.1.0"
+    implementation "android.arch.persistence.room:runtime:1.1.1"
+    annotationProcessor "android.arch.persistence.room:compiler:1.1.1"
 
     //gson
     compile 'com.google.code.gson:gson:2.8.2'
