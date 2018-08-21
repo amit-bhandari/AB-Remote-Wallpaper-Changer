@@ -241,7 +241,8 @@ public class FragmentFriends extends Fragment implements SwipeRefreshLayout.OnRe
                         return false;
                     }
 
-                    Uri myUri = Uri.fromFile(new File(activity.getExternalCacheDir(), UUID.randomUUID().toString()));
+                    String fileName = MyApp.getUser().username + "--" + UUID.randomUUID().toString();
+                    Uri myUri = Uri.fromFile(new File(activity.getExternalCacheDir(), fileName));
                     CropImage.activity()
                             .setGuidelines(CropImageView.Guidelines.ON)
                             .setOutputUri(myUri)
